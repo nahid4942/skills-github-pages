@@ -195,5 +195,11 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        document.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', handleQty);
+            btn.addEventListener('touchend', handleQty);
+        });
+    </script>
 </body>
 </html>
