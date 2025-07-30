@@ -13,8 +13,55 @@ const menuPrices = {
     others: 0      // Custom amount
 };
 
+// Usage Counter Management
+let usageCounter = {
+    count: 0,
+    
+    init() {
+        // Load count from localStorage
+        this.count = parseInt(localStorage.getItem('tongErBillCalculatorUsage')) || 0;
+        this.updateDisplay();
+    },
+    
+    increment() {
+        this.count++;
+        this.save();
+        this.updateDisplay();
+        this.animateCounter();
+    },
+    
+    save() {
+        localStorage.setItem('tongErBillCalculatorUsage', this.count.toString());
+    },
+    
+    updateDisplay() {
+        const counterElement = document.getElementById('usage-count');
+        if (counterElement) {
+            counterElement.textContent = this.count;
+        }
+    },
+    
+    animateCounter() {
+        const counterElement = document.getElementById('usage-count');
+        if (counterElement) {
+            counterElement.style.animation = 'none';
+            setTimeout(() => {
+                counterElement.style.animation = 'countPulse 0.3s ease';
+            }, 10);
+        }
+    },
+    
+    reset() {
+        this.count = 0;
+        this.save();
+        this.updateDisplay();
+        showNotification('Usage counter reset! 📊', 'info');
+    }
+};
+
 // Initialize the calculator
 document.addEventListener('DOMContentLoaded', function() {
+    usageCounter.init();  // Initialize usage counter
     initializeCalculator();
     setupEventListeners();
     console.log('🚬☕ Tong er Bill Calculator initialized!');
@@ -29,7 +76,53 @@ function initializeCalculator() {
     inputs.forEach(input => {
         input.addEventListener('input', updateCalculation);
         input.addEventListener('change', updateCalculation);
+        
+        // Mobile-specific enhancements
+        if (window.innerWidth <= 768) {
+            // Prevent zoom on focus for mobile
+            input.addEventListener('focus', function() {
+                this.setAttribute('readonly', 'readonly');
+                setTimeout(() => {
+                    this.removeAttribute('readonly');
+                    this.focus();
+                }, 100);
+            });
+            
+            // Add touch feedback
+            input.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        }
     });
+    
+    // Enhanced mobile touch feedback for buttons
+    if (window.innerWidth <= 768) {
+        const buttons = document.querySelectorAll('.qty-btn, .calculate-btn, .reset-btn, .clear-btn');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.95)';
+                this.style.opacity = '0.8';
+            });
+            
+            button.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                setTimeout(() => {
+                    this.style.transform = '';
+                    this.style.opacity = '';
+                }, 150);
+            });
+            
+            button.addEventListener('touchcancel', function() {
+                this.style.transform = '';
+                this.style.opacity = '';
+            });
+        });
+    }
 }
 
 function setupEventListeners() {
@@ -172,6 +265,9 @@ function showDetailedResult() {
         showNotification('Number of people must be at least 1! 👤', 'error');
         return;
     }
+    
+    // Increment usage counter for successful calculations
+    usageCounter.increment();
     
     // Generate breakdown
     generateBreakdown(totals);
@@ -406,32 +502,37 @@ function showNotification(message, type = 'info') {
     notification.className = `notification ${type}`;
     notification.textContent = message;
     
-    // Style the notification
-    notification.style.cssText = `
+    // Mobile-specific positioning and styling
+    const isMobile = window.innerWidth <= 768;
+    const notificationStyle = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
+        ${isMobile ? 'top: 10px; left: 10px; right: 10px;' : 'top: 20px; right: 20px;'}
+        padding: ${isMobile ? '1rem' : '1rem 1.5rem'};
+        border-radius: ${isMobile ? '10px' : '8px'};
         color: white;
         font-weight: 600;
         z-index: 10000;
-        max-width: 300px;
+        ${isMobile ? '' : 'max-width: 300px;'}
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideInRight 0.3s ease;
+        animation: ${isMobile ? 'slideInTop' : 'slideInRight'} 0.3s ease;
+        font-size: ${isMobile ? '0.9rem' : '1rem'};
+        text-align: center;
         ${getNotificationStyle(type)}
     `;
+    
+    notification.style.cssText = notificationStyle;
     
     // Add to document
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 3 seconds (4 seconds on mobile for better readability)
+    const duration = isMobile ? 4000 : 3000;
     setTimeout(() => {
         if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.3s ease';
+            notification.style.animation = `${isMobile ? 'slideOutTop' : 'slideOutRight'} 0.3s ease`;
             setTimeout(() => notification.remove(), 300);
         }
-    }, 3000);
+    }, duration);
 }
 
 function getNotificationStyle(type) {
@@ -481,6 +582,28 @@ style.textContent = `
         }
     }
     
+    @keyframes slideInTop {
+        from {
+            transform: translateY(-100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutTop {
+        from {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateY(-100px);
+            opacity: 0;
+        }
+    }
+    
     @keyframes bounce-in {
         0% {
             transform: scale(0.3);
@@ -498,6 +621,33 @@ style.textContent = `
         }
     }
     
+    /* Enhanced mobile counter pulse animation */
+    @keyframes countPulseMobile {
+        0% { 
+            transform: scale(1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        50% { 
+            transform: scale(1.3);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        100% { 
+            transform: scale(1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+    }
+    
+    /* Mobile-specific usage counter animation */
+    @media (max-width: 768px) {
+        .count-number {
+            animation: countPulseMobile 0.4s ease !important;
+        }
+        
+        .usage-counter:hover {
+            transform: translateY(-1px);
+        }
+    }
+    
     /* Pulse effect for inputs when changed */
     input:focus {
         animation: pulse 0.3s ease;
@@ -507,6 +657,19 @@ style.textContent = `
         0% { transform: scale(1); }
         50% { transform: scale(1.05); }
         100% { transform: scale(1); }
+    }
+    
+    /* Enhanced mobile pulse for inputs */
+    @media (max-width: 768px) {
+        input:focus {
+            animation: pulseMobile 0.2s ease;
+        }
+        
+        @keyframes pulseMobile {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
     }
     
     /* Button group styling */
@@ -534,6 +697,18 @@ style.textContent = `
         box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
     
+    /* Mobile button enhancements */
+    @media (max-width: 768px) {
+        .button-group {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-1px);
+        }
+    }
+    
     /* Special message styling */
     .special-message {
         display: none;
@@ -557,6 +732,22 @@ style.textContent = `
         font-size: 1.3rem;
         font-weight: 700;
         color: white;
+    }
+    
+    /* Mobile special message adjustments */
+    @media (max-width: 768px) {
+        .message-content {
+            padding: 1.2rem;
+            border-radius: 12px;
+        }
+        
+        .message-emoji {
+            font-size: 2rem;
+        }
+        
+        .message-text {
+            font-size: 1.1rem;
+        }
     }
     
     .low-bill {
@@ -611,21 +802,6 @@ style.textContent = `
     .split-row span {
         color: white !important;
     }
-    
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-        .button-group {
-            grid-template-columns: 1fr;
-        }
-        
-        .message-emoji {
-            font-size: 2rem;
-        }
-        
-        .message-text {
-            font-size: 1.1rem;
-        }
-    }
 `;
 document.head.appendChild(style);
 
@@ -635,6 +811,14 @@ document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
         e.preventDefault();
         resetAllInputs();
+    }
+    
+    // Ctrl + Shift + R to reset usage counter
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
+        e.preventDefault();
+        if (confirm('Are you sure you want to reset the usage counter? 📊')) {
+            usageCounter.reset();
+        }
     }
     
     // Escape to hide result
@@ -651,11 +835,16 @@ console.log(`
 - Cigarette Brands: Gold Leaf (৳15), Benson (৳20), Advance (৳20), Lucky Strike (৳12)
 - Beverages: Tea (৳12), Coffee (৳20), Chips (৳10)
 - Special Messages based on bill amount
+- Usage Counter: Tracks calculations made (persistent storage)
 - Reset button for quick clearing
 - Real-time calculation
 - Bill splitting
 - Quantity controls
-- Keyboard shortcuts (Enter to calculate, Ctrl+R to reset)
+- Keyboard shortcuts:
+  • Enter to calculate
+  • Ctrl+R to reset inputs
+  • Ctrl+Shift+R to reset usage counter
+  • Escape to hide results
 - Mobile responsive
 
 Made with ❤️ for tong lovers!
