@@ -51,12 +51,7 @@ let usageCounter = {
         }
     },
     
-    reset() {
-        this.count = 0;
-        this.save();
-        this.updateDisplay();
-        showNotification('Usage counter reset! 📊', 'info');
-    }
+    
 };
 
 // Initialize the calculator
