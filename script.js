@@ -20,14 +20,33 @@ let usageCounter = {
     init() {
         // Load count from localStorage
         this.count = parseInt(localStorage.getItem('tongErBillCalculatorUsage')) || 0;
+        console.log('📊 Usage counter initialized with count:', this.count);
         this.updateDisplay();
+        
+        // Verify the element exists
+        const counterElement = document.getElementById('usage-count');
+        if (!counterElement) {
+            console.error('❌ Usage counter element not found!');
+        } else {
+            console.log('✅ Usage counter element found and ready');
+        }
     },
     
     increment() {
         this.count++;
+        console.log('🔢 Usage counter incremented to:', this.count);
         this.save();
         this.updateDisplay();
         this.animateCounter();
+        
+        // Show a brief visual feedback
+        const counterElement = document.getElementById('usage-count');
+        if (counterElement) {
+            counterElement.style.color = '#10b981';
+            setTimeout(() => {
+                counterElement.style.color = '';
+            }, 1000);
+        }
     },
     
     save() {
@@ -38,28 +57,61 @@ let usageCounter = {
         const counterElement = document.getElementById('usage-count');
         if (counterElement) {
             counterElement.textContent = this.count;
+            console.log('🔄 Counter display updated to:', this.count);
+        } else {
+            console.error('❌ Could not update counter display - element not found');
         }
     },
     
     animateCounter() {
         const counterElement = document.getElementById('usage-count');
         if (counterElement) {
+            // Check if on mobile to use appropriate animation
+            const isMobile = window.innerWidth <= 768;
+            const animationName = isMobile ? 'countPulseMobile' : 'countPulse';
+            
             counterElement.style.animation = 'none';
+            // Force reflow
+            counterElement.offsetHeight;
             setTimeout(() => {
-                counterElement.style.animation = 'countPulse 0.3s ease';
+                counterElement.style.animation = `${animationName} 0.4s ease`;
             }, 10);
+            
+            // Also animate the entire counter container
+            const counterContainer = counterElement.closest('.usage-counter');
+            if (counterContainer) {
+                counterContainer.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    counterContainer.style.transform = '';
+                }, 400);
+            }
         }
     },
     
-    
+    reset() {
+        this.count = 0;
+        this.save();
+        this.updateDisplay();
+        showNotification('Usage counter reset! 📊', 'info');
+    }
 };
 
 // Initialize the calculator
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM Content Loaded - initializing calculator');
     usageCounter.init();  // Initialize usage counter
     initializeCalculator();
     setupEventListeners();
     console.log('🚬☕ Tong er Bill Calculator initialized!');
+    
+    // Add a test function to window for debugging
+    window.testCounter = function() {
+        console.log('🧪 Testing counter manually...');
+        usageCounter.increment();
+        return usageCounter.count;
+    };
+    
+    console.log('💡 Type "testCounter()" in console to manually test the counter');
 });
 
 function initializeCalculator() {
@@ -250,17 +302,22 @@ function showDetailedResult() {
     const quantities = getQuantities();
     const totals = calculateTotals(quantities);
     
+    console.log('🧮 Calculation triggered with total:', totals.total);
+    
     // Validate inputs
     if (totals.total === 0) {
+        console.log('⚠️ Calculation failed - total is 0');
         showNotification('Please add some items to calculate the bill! ☕', 'warning');
         return;
     }
     
     if (quantities.people < 1) {
+        console.log('⚠️ Calculation failed - invalid people count');
         showNotification('Number of people must be at least 1! 👤', 'error');
         return;
     }
     
+    console.log('✅ Calculation successful - incrementing usage counter');
     // Increment usage counter for successful calculations
     usageCounter.increment();
     
