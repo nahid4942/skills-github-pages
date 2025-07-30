@@ -1,0 +1,21 @@
+{
+  "name": "cafe-bill-calculator",
+  "version": "1.0.0",
+  "description": "A simple cafe bill calculator that calculates the total bill based on user input and splits it among a specified number of people.",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "live-server src"
+  },
+  "keywords": [
+    "cafe",
+    "bill",
+    "calculator",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
