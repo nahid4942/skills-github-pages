@@ -463,6 +463,52 @@ footer {
     .container {
         overflow-x: hidden;
     }
+    
+    /* Enhanced button touch feedback */
+    .qty-btn {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .qty-btn:active {
+        transform: scale(0.9);
+        background: #5a67d8;
+    }
+    
+    .calculate-btn, .reset-btn, .clear-btn {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+    }
+    
+    .calculate-btn:active {
+        transform: scale(0.98);
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+    
+    .reset-btn:active {
+        transform: scale(0.98);
+        background: linear-gradient(135deg, #d97706, #b45309);
+    }
+    
+    /* Test buttons mobile enhancement */
+    button[onclick] {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    button[onclick]:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
 }
 
 /* Extra small screens (landscape phones) */

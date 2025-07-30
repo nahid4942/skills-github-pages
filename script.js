@@ -244,13 +244,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return usageCounter.reset();
     };
     
-    console.log('💡 Available test functions:');
+    // Mobile debugging function
+    window.checkMobile = function() {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        console.log('� Mobile detection:', isMobile);
+        console.log('📱 User Agent:', navigator.userAgent);
+        console.log('📱 Screen Width:', window.innerWidth);
+        showNotification(`Mobile detected: ${isMobile}`, 'info');
+        return isMobile;
+    };
+    
+    console.log('�💡 Available test functions:');
     console.log('  • testCounter() - Test the global counter');
     console.log('  • getGlobalStats() - View usage statistics');
     console.log('  • resetGlobalCounter() - Reset global counter');
+    console.log('  • checkMobile() - Check mobile detection');
 });
 
 function initializeCalculator() {
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
     // Set initial values
     updateCalculation();
     
@@ -261,7 +275,7 @@ function initializeCalculator() {
         input.addEventListener('change', updateCalculation);
         
         // Mobile-specific enhancements
-        if (window.innerWidth <= 768) {
+        if (isMobile) {
             // Prevent zoom on focus for mobile
             input.addEventListener('focus', function() {
                 this.setAttribute('readonly', 'readonly');
@@ -271,61 +285,127 @@ function initializeCalculator() {
                 }, 100);
             });
             
-            // Add touch feedback
+            // Add touch feedback for inputs
             input.addEventListener('touchstart', function() {
                 this.style.transform = 'scale(1.02)';
-            });
+                this.style.boxShadow = '0 0 0 2px #667eea';
+            }, { passive: true });
             
             input.addEventListener('touchend', function() {
-                this.style.transform = '';
-            });
+                setTimeout(() => {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                }, 200);
+            }, { passive: true });
         }
     });
     
-    // Enhanced mobile touch feedback for buttons
-    if (window.innerWidth <= 768) {
-        const buttons = document.querySelectorAll('.qty-btn, .calculate-btn, .reset-btn, .clear-btn');
-        buttons.forEach(button => {
-            button.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.style.transform = 'scale(0.95)';
-                this.style.opacity = '0.8';
-            });
-            
-            button.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                setTimeout(() => {
-                    this.style.transform = '';
-                    this.style.opacity = '';
-                }, 150);
-            });
-            
-            button.addEventListener('touchcancel', function() {
-                this.style.transform = '';
-                this.style.opacity = '';
-            });
-        });
-    }
+    // Remove the old touch feedback that was conflicting
+    console.log('✅ Calculator initialized with mobile support:', isMobile);
 }
 
 function setupEventListeners() {
-    // Quantity control buttons
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
+    // Quantity control buttons - Enhanced mobile support
     const qtyButtons = document.querySelectorAll('.qty-btn');
     qtyButtons.forEach(button => {
-        button.addEventListener('click', handleQuantityChange);
+        if (isMobile) {
+            // For mobile: use touchend for better responsiveness
+            button.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.9)';
+                this.style.backgroundColor = '#4c51bf';
+            }, { passive: false });
+            
+            button.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Reset visual feedback
+                this.style.transform = '';
+                this.style.backgroundColor = '';
+                
+                // Trigger the actual functionality
+                handleQuantityChange({ target: this });
+            }, { passive: false });
+            
+            button.addEventListener('touchcancel', function() {
+                this.style.transform = '';
+                this.style.backgroundColor = '';
+            });
+        } else {
+            // For desktop: use click
+            button.addEventListener('click', handleQuantityChange);
+        }
     });
     
-    // Calculate button
+    // Calculate button - Enhanced mobile support
     const calculateBtn = document.getElementById('calculate');
-    calculateBtn.addEventListener('click', showDetailedResult);
+    if (isMobile) {
+        calculateBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showDetailedResult();
+        }, { passive: false });
+    } else {
+        calculateBtn.addEventListener('click', showDetailedResult);
+    }
     
-    // Reset button
+    // Reset button - Enhanced mobile support
     const resetBtn = document.getElementById('reset');
-    resetBtn.addEventListener('click', resetAllInputs);
+    if (isMobile) {
+        resetBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            resetAllInputs();
+        }, { passive: false });
+    } else {
+        resetBtn.addEventListener('click', resetAllInputs);
+    }
     
-    // Clear all button
+    // Clear all button - Enhanced mobile support
     const clearBtn = document.getElementById('clear-all');
-    clearBtn.addEventListener('click', clearAllInputs);
+    if (clearBtn) {
+        if (isMobile) {
+            clearBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                clearAllInputs();
+            }, { passive: false });
+        } else {
+            clearBtn.addEventListener('click', clearAllInputs);
+        }
+    }
+    
+    // Test buttons for global counter - Mobile support
+    const testCounterBtn = document.getElementById('test-counter-btn');
+    const statsBtn = document.getElementById('global-stats-btn');
+    
+    if (testCounterBtn) {
+        if (isMobile) {
+            testCounterBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.testCounter();
+            }, { passive: false });
+        } else {
+            testCounterBtn.addEventListener('click', window.testCounter);
+        }
+    }
+    
+    if (statsBtn) {
+        if (isMobile) {
+            statsBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.getGlobalStats();
+            }, { passive: false });
+        } else {
+            statsBtn.addEventListener('click', window.getGlobalStats);
+        }
+    }
     
     // Enter key support
     document.addEventListener('keypress', function(e) {
