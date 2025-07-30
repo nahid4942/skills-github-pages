@@ -37,87 +37,6 @@ header p {
     font-weight: 300;
 }
 
-/* Usage Counter Styling */
-.usage-counter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    padding: 1rem 1.5rem;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.usage-counter:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.counter-icon {
-    font-size: 1.8rem;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.counter-icon::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-    100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-}
-
-.counter-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: white;
-}
-
-.counter-text span:first-child {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    font-weight: 400;
-    margin-bottom: 0.2rem;
-}
-
-.count-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    animation: countPulse 0.3s ease;
-}
-
-@keyframes countPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
 .calculator-card {
     background: white;
     border-radius: 20px;
@@ -513,20 +432,6 @@ footer {
 
 /* Extra small screens (landscape phones) */
 @media (max-width: 576px) {
-    .usage-counter {
-        margin: 0.5rem -0.5rem 0;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.18);
-    }
-    
-    .counter-text span:first-child {
-        font-size: 0.7rem;
-    }
-    
-    .count-number {
-        font-size: 1.1rem;
-    }
-    
     .input-group {
         margin-bottom: 0.6rem;
         padding: 0.6rem;
@@ -556,21 +461,6 @@ footer {
     header p {
         font-size: 0.9rem;
         margin-bottom: 0.3rem;
-    }
-    
-    .usage-counter {
-        padding: 0.6rem 1rem;
-        margin-top: 0.5rem;
-    }
-    
-    .counter-icon {
-        width: 35px;
-        height: 35px;
-        font-size: 1.3rem;
-    }
-    
-    .count-number {
-        font-size: 1.2rem;
     }
     
     .calculator-card {
@@ -625,40 +515,6 @@ footer {
 @media (max-width: 768px) {
     .menu-section h2:nth-of-type(2) {
         margin-top: 1.5rem;
-    }
-    
-    /* Enhanced mobile usage counter */
-    .usage-counter {
-        flex-direction: row;
-        gap: 0.8rem;
-        padding: 1rem;
-        margin-top: 1rem;
-        background: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    .counter-icon {
-        width: 45px;
-        height: 45px;
-        font-size: 1.6rem;
-        background: linear-gradient(135deg, #ffffff, #e5e7eb);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-    }
-    
-    .counter-text {
-        align-items: flex-start;
-    }
-    
-    .counter-text span:first-child {
-        font-size: 0.85rem;
-        font-weight: 500;
-        margin-bottom: 0.1rem;
-    }
-    
-    .count-number {
-        font-size: 1.4rem;
-        font-weight: 800;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
     
     /* Better touch targets for mobile */
@@ -719,38 +575,6 @@ footer {
     header p {
         font-size: 1rem;
         margin-bottom: 0.5rem;
-    }
-    
-    /* Compact mobile usage counter */
-    .usage-counter {
-        flex-direction: row;
-        gap: 0.6rem;
-        padding: 0.8rem;
-        margin-top: 0.8rem;
-        border-radius: 12px;
-    }
-    
-    .counter-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-    }
-    
-    .counter-text {
-        min-width: 0;
-        flex: 1;
-    }
-    
-    .counter-text span:first-child {
-        font-size: 0.75rem;
-        line-height: 1.2;
-        white-space: nowrap;
-    }
-    
-    .count-number {
-        font-size: 1.2rem;
-        font-weight: 900;
     }
     
     .calculator-card {

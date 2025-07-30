@@ -13,6 +13,14 @@ const menuPrices = {
     others: 0      // Custom amount
 };
 
+// Initialize the calculator
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM Content Loaded - initializing calculator');
+    initializeCalculator();
+    setupEventListeners();
+    console.log('🚬☕ Tong er Bill Calculator initialized!');
+});
+
 // Usage Counter Management - Global Counter Across All Devices
 let usageCounter = {
     count: 0,
@@ -379,34 +387,6 @@ function setupEventListeners() {
         }
     }
     
-    // Test buttons for global counter - Mobile support
-    const testCounterBtn = document.getElementById('test-counter-btn');
-    const statsBtn = document.getElementById('global-stats-btn');
-    
-    if (testCounterBtn) {
-        if (isMobile) {
-            testCounterBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.testCounter();
-            }, { passive: false });
-        } else {
-            testCounterBtn.addEventListener('click', window.testCounter);
-        }
-    }
-    
-    if (statsBtn) {
-        if (isMobile) {
-            statsBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.getGlobalStats();
-            }, { passive: false });
-        } else {
-            statsBtn.addEventListener('click', window.getGlobalStats);
-        }
-    }
-    
     // Enter key support
     document.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -533,9 +513,7 @@ function showDetailedResult() {
         return;
     }
     
-    console.log('✅ Calculation successful - incrementing usage counter');
-    // Increment usage counter for successful calculations
-    usageCounter.increment();
+    console.log('✅ Calculation successful');
     
     // Generate breakdown
     generateBreakdown(totals);
@@ -889,33 +867,6 @@ style.textContent = `
         }
     }
     
-    /* Enhanced mobile counter pulse animation */
-    @keyframes countPulseMobile {
-        0% { 
-            transform: scale(1);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        50% { 
-            transform: scale(1.3);
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-        100% { 
-            transform: scale(1);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-    }
-    
-    /* Mobile-specific usage counter animation */
-    @media (max-width: 768px) {
-        .count-number {
-            animation: countPulseMobile 0.4s ease !important;
-        }
-        
-        .usage-counter:hover {
-            transform: translateY(-1px);
-        }
-    }
-    
     /* Pulse effect for inputs when changed */
     input:focus {
         animation: pulse 0.3s ease;
@@ -1081,14 +1032,6 @@ document.addEventListener('keydown', function(e) {
         resetAllInputs();
     }
     
-    // Ctrl + Shift + R to reset usage counter
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
-        e.preventDefault();
-        if (confirm('Are you sure you want to reset the usage counter? 📊')) {
-            usageCounter.reset();
-        }
-    }
-    
     // Escape to hide result
     if (e.key === 'Escape') {
         const resultSection = document.getElementById('result');
@@ -1101,11 +1044,8 @@ console.log(`
 🚬☕ Welcome to Tong er Bill Calculator! ☕🚬
 🎯 Features:
 - Cigarette Brands: Gold Leaf (৳15), Benson (৳20), Advance (৳20), Lucky Strike (৳12)
-- Beverages: Tea (৳12), Coffee (৳20), Chips (৳10)
+- Beverages: Tea (৳10), Coffee (৳20), Chips (৳10)
 - Special Messages based on bill amount
-- 🌍 GLOBAL Usage Counter: Tracks calculations across ALL devices worldwide!
-- Real-time global sync with cloud storage
-- Offline functionality with auto-sync
 - Reset button for quick clearing
 - Real-time calculation
 - Bill splitting
@@ -1113,12 +1053,10 @@ console.log(`
 - Keyboard shortcuts:
   • Enter to calculate
   • Ctrl+R to reset inputs
-  • Ctrl+Shift+R to reset GLOBAL usage counter
   • Escape to hide results
 - Mobile responsive with touch optimizations
 
-🌟 NEW: Global counter shows total usage from all users worldwide!
-Made with ❤️ for tong lovers across the globe! 🌍
+Made with ❤️ for tong lovers! 🌍
 `);
 
 // Export functions for testing (if needed)
