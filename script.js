@@ -7,7 +7,7 @@ const menuPrices = {
     lucky: 12,     // Updated to match HTML
     
     // Beverages & Snacks
-    tea: 12,
+    tea: 10,
     coffee: 20,
     snacks: 10,    // Updated to match HTML (chips)
     others: 0      // Custom amount

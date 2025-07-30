@@ -12,6 +12,14 @@
         <header>
             <h1>☕tong er Bill</h1>
             <p>Calculate your tong er bill and split among friends</p>
+            <!-- Usage Counter -->
+            <div class="usage-counter">
+                <div class="counter-icon">📊</div>
+                <div class="counter-text">
+                    <span>Calculations Made:</span>
+                    <span id="usage-count" class="count-number">0</span>
+                </div>
+            </div>
         </header>
 
         <div class="calculator-card">
@@ -84,8 +92,8 @@
                     <label for="tea">
                         <span class="icon">🍵</span>
                         <span class="item-info">
-                            <span class="item-name">Tea</span>
-                            <span class="item-price">৳12 each</span>
+                            <span class="item-name">chai</span>
+                            <span class="item-price">৳10 each</span>
                         </span>
                     </label>
                     <div class="quantity-control">
@@ -167,7 +175,9 @@
                 </button>
             </div>
 
-            
+            <div class="result" id="result">
+                <!-- Special Message Display -->
+                <div class="special-message" id="special-message"></div>
                 
                 <div class="bill-breakdown">
                     <h3>📊 Bill Breakdown</h3>
@@ -182,10 +192,6 @@
                         <h2>Per Person: <span id="split-bill">৳0</span></h2>
                     </div>
                 </div>
-
-                <div class="result" id="result">
-                <!-- Special Message Display -->
-                <div class="special-message" id="special-message"></div>
 
                 <button id="clear-all" class="clear-btn">🗑️ Clear All</button>
             </div>
