@@ -347,14 +347,14 @@ input, select, textarea {
 }
 
 .nav-logo .logo-image {
-  width: 40px;
-  height: 40px;
+  width: 140px;
+  height: 60px;
   object-fit: contain;
   border-radius: var(--border-radius-sm);
 }
 
 .nav-logo .logo-square {
-  width: 40px;
+  width: 100px;
   height: 40px;
   font-size: 16px;
 }

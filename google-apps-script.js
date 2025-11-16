@@ -32,34 +32,36 @@ function setSpreadsheetId(spreadsheetId) {
  */
 function doPost(e) {
     try {
-        // Parse the incoming data
-        const data = JSON.parse(e.postData.contents);
-        
-        // Get or create the spreadsheet
+        // Parse incoming payload
+        const data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
+
+        // If this is a sendReport action, handle server-side PDF/email
+        if(data.action === 'sendReport'){
+            const recipients = Array.isArray(data.recipients) ? data.recipients : (typeof data.recipients === 'string' ? data.recipients.split(',').map(s=>s.trim()) : []);
+            const rangeDays = Number(data.rangeDays) || 7;
+            try{
+                const raw = getAllOrders();
+                const normalized = raw.map(normalizeOrderRow);
+                const now = new Date();
+                const since = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (rangeDays - 1));
+                const recent = normalized.filter(o=>{ const d = o.createdAt ? new Date(o.createdAt) : null; return d && d >= since; });
+                const reportHtml = buildReportHtmlForNormalized(recent, since, now);
+                const pdfBlob = HtmlService.createHtmlOutput(reportHtml).getAs('application/pdf').setName('BLKPAPER_report.pdf');
+                const subject = 'BLKPAPER Report '+ Utilities.formatDate(since, Session.getScriptTimeZone(), 'yyyy-MM-dd') + ' - ' + Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+                const options = {htmlBody: reportHtml, attachments: [pdfBlob]};
+                let sent = 0;
+                recipients.forEach(r=>{ if(r && r.indexOf('@')>-1){ try{ MailApp.sendEmail(r, subject, 'Please find attached the BLKPAPER report.', options); sent++; }catch(e){ console.log('sendReport failure to %s: %s', r, e.message); } } });
+                return ContentService.createTextOutput(JSON.stringify({status:'ok',sentTo:sent})).setMimeType(ContentService.MimeType.JSON);
+            }catch(err){ return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.message})).setMimeType(ContentService.MimeType.JSON); }
+        }
+
+        // Otherwise treat as order payload (original behavior)
         const sheet = getOrCreateSheet();
-        
-        // Add the order to the spreadsheet
         addOrderToSheet(sheet, data);
-        
-        // Send success response
-        return ContentService
-            .createTextOutput(JSON.stringify({
-                status: 'success',
-                message: 'Order saved successfully',
-                orderId: data.orderId
-            }))
-            .setMimeType(ContentService.MimeType.JSON);
-            
+        return ContentService.createTextOutput(JSON.stringify({status:'success',message:'Order saved successfully',orderId:data.orderId})).setMimeType(ContentService.MimeType.JSON);
     } catch (error) {
         console.error('Error processing order:', error);
-        
-        // Send error response
-        return ContentService
-            .createTextOutput(JSON.stringify({
-                status: 'error',
-                message: error.toString()
-            }))
-            .setMimeType(ContentService.MimeType.JSON);
+        return ContentService.createTextOutput(JSON.stringify({status:'error',message:error.toString()})).setMimeType(ContentService.MimeType.JSON);
     }
 }
 
@@ -67,9 +69,54 @@ function doPost(e) {
  * Handle GET requests (for testing)
  */
 function doGet(e) {
-    return ContentService
-        .createTextOutput('BLKPAPER Order System is running!')
-        .setMimeType(ContentService.MimeType.TEXT);
+    try{
+        const action = (e && e.parameter && e.parameter.action) ? String(e.parameter.action) : '';
+        if(action === 'getOrders'){
+            // Return normalized orders as JSON. Support optional ?since=YYYY-MM-DD
+            const raw = getAllOrders();
+            const normalized = raw.map(normalizeOrderRow);
+            const sinceParam = (e && e.parameter && e.parameter.since) ? String(e.parameter.since) : '';
+            if(sinceParam){
+                let sinceDate = null;
+                try{ sinceDate = new Date(sinceParam); if(isNaN(sinceDate.getTime())) sinceDate = null; }catch(_){ sinceDate = null; }
+                if(sinceDate){
+                    const filtered = normalized.filter(o=>{ const d = o.createdAt ? new Date(o.createdAt) : null; return d && d >= sinceDate; });
+                    return ContentService.createTextOutput(JSON.stringify({orders:filtered})).setMimeType(ContentService.MimeType.JSON);
+                }
+            }
+            return ContentService.createTextOutput(JSON.stringify({orders:normalized})).setMimeType(ContentService.MimeType.JSON);
+        }
+        if(action === 'info'){
+            const info = getSpreadsheetInfo();
+            return ContentService.createTextOutput(JSON.stringify(info)).setMimeType(ContentService.MimeType.JSON);
+        }
+        return ContentService
+            .createTextOutput(JSON.stringify({status:'ok',message:'BLKPAPER Order System running'}))
+            .setMimeType(ContentService.MimeType.JSON);
+    }catch(err){
+        return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.message})).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
+// Normalize a row object (as returned by getAllOrders) into the shape expected by admin UI
+function normalizeOrderRow(row){
+    // row keys are header names like 'Order ID','Order Date','Total (৳)','Timestamp', etc.
+    const get = key => (row[key] !== undefined && row[key] !== null) ? row[key] : '';
+    const createdAt = get('Timestamp') || get('Order Date') || get('orderDate') || new Date().toISOString();
+    const totalRaw = get('Total (৳)') || get('Total') || get('total') || 0;
+    const total = Number(String(totalRaw).toString().replace(/[^0-9.\-]/g,'')) || 0;
+    const customer = { name: get('Customer Name') || get('customerName') || '', email: get('Customer Email') || get('customerEmail') || '', phone: get('Customer Phone') || get('customerPhone') || '', address: get('Customer Address') || '' };
+    return {
+        orderId: get('Order ID') || get('orderId') || '',
+        createdAt: createdAt,
+        payment: get('Payment Method') || get('payment') || '',
+        subtotal: Number(get('Subtotal (৳)') || get('subtotal') || 0) || 0,
+        tax: 0,
+        total: total,
+        profit: 0,
+        customer: customer,
+        items: []
+    };
 }
 
 /**
@@ -559,4 +606,31 @@ function checkSystemStatus() {
     console.log('================================');
     
     return info;
+}
+
+function buildReportHtmlForNormalized(orders, sinceDate, toDate){
+    const totalOrders = orders.length;
+    const totalSales = orders.reduce((s,o)=>s + (Number(o.total)||0),0);
+    const totalProfit = orders.reduce((s,o)=>s + (Number(o.profit)||0),0);
+    // top products not available (items empty), so show empty table if no data
+    const topProducts = [];
+    const pay = {};
+    orders.forEach(o=>{ const m = (o.payment||'unknown').toString().toLowerCase(); pay[m] = (pay[m]||0) + (Number(o.total)||0); });
+    const customers = {};
+    orders.forEach(o=>{ const c = o.customer||{}; const key = (c.email && c.email.trim()) || (c.name && c.name.trim()) || ('guest-'+(o.orderId||Math.random())); customers[key] = (customers[key]||0) + 1; });
+    let newCust=0, returningCust=0; Object.values(customers).forEach(cnt=> cnt>1 ? returningCust++ : newCust++);
+    const tz = Session.getScriptTimeZone();
+    const period = Utilities.formatDate(sinceDate, tz, 'yyyy-MM-dd') + ' — ' + Utilities.formatDate(toDate, tz, 'yyyy-MM-dd');
+
+    const rows = topProducts.map(p=> `<tr><td>${p.name}</td><td style="text-align:right">${p.qty}</td></tr>`).join('') || '<tr><td colspan="2">No product-level data available</td></tr>';
+    const payRows = Object.keys(pay).map(k=>`<tr><td>${k.toUpperCase()}</td><td style="text-align:right">${pay[k].toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="2">No payments</td></tr>';
+    const recentRows = orders.slice().reverse().slice(0,30).map(o=>`<tr><td>${o.orderId||''}</td><td>${(o.customer && (o.customer.name||o.customer.email))||'Guest'}</td><td style="text-align:right">${(Number(o.total)||0).toFixed(2)}</td><td>${o.createdAt||''}</td></tr>`).join('') || '<tr><td colspan="4">No orders</td></tr>';
+
+    return `<!doctype html><html><head><meta charset="utf-8"><title>BLKPAPER Report</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:18px}h1{font-size:18px}table{width:100%;border-collapse:collapse}th,td{padding:6px;border:1px solid #ddd;text-align:left}th{background:#f6f7f9}</style></head><body>` +
+    `<h1>BLKPAPER — Business Report</h1><div><strong>Period:</strong> ${period}</div>` +
+    `<div style="margin-top:12px"><strong>Total Orders:</strong> ${totalOrders} &nbsp; <strong>Total Sales:</strong> ${totalSales.toFixed(2)} &nbsp; <strong>Total Profit:</strong> ${totalProfit.toFixed(2)}</div>` +
+    `<h3 style="margin-top:14px">Top Products</h3><table><thead><tr><th>Product</th><th>Qty</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<h3 style="margin-top:14px">Payment Summary</h3><table><thead><tr><th>Method</th><th>Total</th></tr></thead><tbody>${payRows}</tbody></table>` +
+    `<h3 style="margin-top:14px">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Date</th></tr></thead><tbody>${recentRows}</tbody></table>` +
+    `<div style="margin-top:18px;font-size:12px;color:#666">Generated: ${Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm')}</div></body></html>`;
 }
