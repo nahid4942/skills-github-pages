@@ -46,8 +46,12 @@ const productData = [
         category: 'clothing',
         price: 1800,
         originalPrice: 2200,
-        image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        images: [
+            'cloting/p3n1.png',
+            'cloting/p3n1.png'
+        ],
         description: 'Premium cotton hoodie with minimalist design and comfortable fit.',
+        eco: true,
         featured: false,
         inStock: true,
         rating: 4.8,
@@ -182,6 +186,7 @@ const productData = [
         originalPrice: null,
         image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         description: 'Durable canvas messenger bag perfect for daily use.',
+        eco: true,
         featured: false,
         inStock: true,
         rating: 4.5,
@@ -208,6 +213,7 @@ const productData = [
         originalPrice: 500,
         image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         description: 'Protective phone case with minimalist design.',
+        eco: true,
         featured: false,
         inStock: true,
         rating: 4.3,
@@ -251,6 +257,9 @@ function initializeWebsite() {
     
     // Initialize scroll effects
     initializeScrollEffects();
+    
+    // Initialize Eco Corner (eco-friendly products)
+    initializeEcoCorner();
     
     // Initialize retry queue processing
     initializeRetryQueue();
@@ -427,7 +436,7 @@ function closeCart() {
     document.body.style.overflow = '';
 }
 
-function addToCart(productId, quantity = 1) {
+function addToCart(productId, quantity = 1, size = null) {
     const product = products.find(p => p.id === productId);
     if (!product) {
         showToast('Product not found', 'error');
@@ -439,8 +448,23 @@ function addToCart(productId, quantity = 1) {
         return;
     }
     
-    const existingItem = cart.find(item => item.id === productId);
-    
+    // If size not provided, try to read from a size select in DOM
+    if (!size && product.category === 'clothing') {
+        const selectEl = document.getElementById(`size-select-${productId}`) || document.getElementById(`modal-size-${productId}`);
+        if (selectEl) {
+            size = selectEl.value || null;
+        }
+    }
+
+    // For clothing, require size selection
+    if (product.category === 'clothing' && !size) {
+        showToast('Please select a size before adding to cart', 'warning');
+        return;
+    }
+
+    // Check for existing item with same productId and size
+    const existingItem = cart.find(item => item.id === productId && (item.size || null) === (size || null));
+
     if (existingItem) {
         existingItem.quantity += quantity;
     } else {
@@ -448,8 +472,9 @@ function addToCart(productId, quantity = 1) {
             id: productId,
             name: product.name,
             price: product.price,
-            image: product.image,
-            quantity: quantity
+            image: product.image || (product.images && product.images[0]) || '',
+            quantity: quantity,
+            size: size || null
         });
     }
     
@@ -471,18 +496,30 @@ function addToCart(productId, quantity = 1) {
 }
 
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    // Deprecated simple remove; keep signature but allow passing size via second arg when used
+    // We'll support calls like removeFromCart(productId, size)
+    const args = Array.from(arguments);
+    const size = args.length > 1 ? args[1] : null;
+    if (size) {
+        cart = cart.filter(item => !(item.id === productId && ((item.size || null) === (size || null))));
+    } else {
+        cart = cart.filter(item => item.id !== productId);
+    }
     localStorage.setItem('blkpaper_cart', JSON.stringify(cart));
     updateCartUI();
     updateCartItems();
     showToast('Item removed from cart', 'info');
 }
 
-function updateCartQuantity(productId, quantity) {
-    const item = cart.find(item => item.id === productId);
+function updateCartQuantity(productId, quantity, size = null) {
+    const item = cart.find(item => item.id === productId && ((item.size || null) === (size || null)));
     if (item) {
         if (quantity <= 0) {
-            removeFromCart(productId);
+            // remove specific sized item
+            cart = cart.filter(i => !(i.id === productId && ((i.size || null) === (size || null))));
+            localStorage.setItem('blkpaper_cart', JSON.stringify(cart));
+            updateCartUI();
+            updateCartItems();
         } else {
             item.quantity = quantity;
             localStorage.setItem('blkpaper_cart', JSON.stringify(cart));
@@ -540,19 +577,20 @@ function updateCartItems() {
             </div>
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
+                ${item.size ? `<div class="cart-item-size">Size: <strong>${item.size}</strong></div>` : ''}
                 <div class="cart-item-price">৳${item.price.toLocaleString()}</div>
                 <div class="cart-item-controls">
                     <div class="quantity-controls">
-                        <button class="qty-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})">
+                        <button class="qty-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity - 1}, '${item.size || ''}')">
                             <i class="fas fa-minus"></i>
                         </button>
                         <input type="number" class="qty-input" value="${item.quantity}" 
-                               onchange="updateCartQuantity('${item.id}', parseInt(this.value))" min="1">
-                        <button class="qty-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})">
+                               onchange="updateCartQuantity('${item.id}', parseInt(this.value), '${item.size || ''}')" min="1">
+                        <button class="qty-btn" onclick="updateCartQuantity('${item.id}', ${item.quantity + 1}, '${item.size || ''}')">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <button class="remove-btn" onclick="removeFromCart('${item.id}')">
+                    <button class="remove-btn" onclick="removeFromCart('${item.id}', '${item.size || ''}')">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -669,9 +707,10 @@ function createProductCard(product) {
         <div class="product-card ${product.featured ? 'featured' : ''} ${!product.inStock ? 'out-of-stock' : ''}" 
              data-category="${product.category}">
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" loading="lazy">
+                <img src="${product.image || (product.images && product.images[0]) || ''}" alt="${product.name}" loading="lazy">
                 ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
                 ${!product.inStock ? `<div class="product-badge" style="background: var(--accent-danger);">Out of Stock</div>` : ''}
+                ${product.eco ? `<div class="eco-badge"><i class="fas fa-leaf"></i>Eco</div>` : ''}
                 <div class="product-actions">
                     <button class="action-btn" onclick="quickView('${product.id}')">
                         <i class="fas fa-eye"></i>
@@ -685,6 +724,18 @@ function createProductCard(product) {
                 <div class="product-category">${getCategoryName(product.category)}</div>
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
+                ${product.category === 'clothing' ? `
+                <div class="product-size">
+                    <label for="size-select-${product.id}" style="font-size:0.85rem; color:var(--gray-600);">Size</label>
+                    <select id="size-select-${product.id}" style="width:100%; padding:8px; border-radius:8px; margin-top:6px;">
+                        <option value="">Select size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>` : ''}
                 <div class="product-footer">
                     <div class="product-price">
                         <span class="current-price">৳${product.price.toLocaleString()}</span>
@@ -699,6 +750,21 @@ function createProductCard(product) {
             </div>
         </div>
     `;
+}
+
+// ===== ECO CORNER =====
+function initializeEcoCorner() {
+    const ecoGrid = document.getElementById('ecoProductsGrid');
+    if (!ecoGrid) return;
+
+    const ecoProducts = products.filter(p => p.eco === true);
+
+    if (!ecoProducts || ecoProducts.length === 0) {
+        ecoGrid.innerHTML = '<p class="muted">No eco-friendly products available yet. Check back soon.</p>';
+        return;
+    }
+
+    ecoGrid.innerHTML = ecoProducts.map(p => createProductCard(p)).join('');
 }
 
 function getCategoryName(category) {
@@ -742,7 +808,7 @@ function quickView(productId) {
     modalBody.innerHTML = `
         <div class="product-quick-view">
             <div class="quick-view-image">
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${product.image || (product.images && product.images[0]) || ''}" alt="${product.name}">
             </div>
             <div class="quick-view-info">
                 <div class="product-category">${getCategoryName(product.category)}</div>
@@ -758,8 +824,22 @@ function quickView(productId) {
                     <span class="current-price" style="font-size: 1.8rem;">৳${product.price.toLocaleString()}</span>
                     ${product.originalPrice ? `<span class="original-price" style="font-size: 1.2rem;">৳${product.originalPrice.toLocaleString()}</span>` : ''}
                 </div>
-                <div class="product-actions" style="display: flex; gap: 16px; margin-top: 32px;">
-                    <button class="btn btn-primary btn-large" onclick="addToCart('${product.id}'); closeModal();" 
+                ${product.category === 'clothing' ? `
+                <div style="margin-top:12px;">
+                    <label for="modal-size-${product.id}" style="font-size:0.95rem; color:var(--gray-700);">Choose Size</label>
+                    <select id="modal-size-${product.id}" style="width:100%; padding:8px; border-radius:8px; margin-top:6px;">
+                        <option value="">Select size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+                ` : ''}
+
+                <div class="product-actions" style="display: flex; gap: 16px; margin-top: 24px;">
+                    <button class="btn btn-primary btn-large" onclick="addToCart('${product.id}', 1, document.getElementById('modal-size-${product.id}') ? document.getElementById('modal-size-${product.id}').value : null); closeModal();" 
                             ${!product.inStock ? 'disabled' : ''}>
                         <i class="fas fa-shopping-cart"></i>
                         ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
@@ -951,6 +1031,7 @@ function showCheckoutModal() {
                             <div class="item-details">
                                 <span class="item-name">${item.name}</span>
                                 <span class="item-qty">Qty: ${item.quantity}</span>
+                                ${item.size ? `<span class="item-size">Size: ${item.size}</span>` : ''}
                             </div>
                             <span class="item-total">৳${(item.price * item.quantity).toLocaleString()}</span>
                         </div>
@@ -1084,7 +1165,7 @@ async function sendOrderToGoogleSheets(order) {
             // Order Details
             itemsCount: order.items.length,
             itemsDetails: order.items.map(item => 
-                `${item.name} (Qty: ${item.quantity}, Price: ৳${item.price})`
+                `${item.name}${item.size ? ' [Size: '+item.size+']' : ''} (Qty: ${item.quantity}, Price: ৳${item.price})`
             ).join(' | '),
             subtotal: order.subtotal,
             shipping: order.shipping,
@@ -1578,3 +1659,161 @@ Shortcuts:
 Ready to redefine style! 🖤
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
+
+/**
+ * Build carousel HTML for a product.
+ * Accepts product.images (array) or product.image (single).
+ */
+function buildProductCarousel(product) {
+    const images = Array.isArray(product.images) && product.images.length
+        ? product.images
+        : (product.image ? [product.image] : []);
+
+    if (!images.length) return ''; // no images
+
+    // create container
+    const wrapper = document.createElement('div');
+    wrapper.className = 'product-carousel';
+
+    // track
+    const track = document.createElement('div');
+    track.className = 'carousel-track';
+
+    images.forEach(src => {
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = product.name || 'Product image';
+        slide.appendChild(img);
+        track.appendChild(slide);
+    });
+
+    // nav buttons (only show if multiple)
+    if (images.length > 1) {
+        const btnLeft = document.createElement('button');
+        btnLeft.className = 'carousel-nav left';
+        btnLeft.setAttribute('aria-label', 'Previous image');
+        btnLeft.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+        const btnRight = document.createElement('button');
+        btnRight.className = 'carousel-nav right';
+        btnRight.setAttribute('aria-label', 'Next image');
+        btnRight.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+        wrapper.appendChild(btnLeft);
+        wrapper.appendChild(btnRight);
+
+        // indicators
+        const indicators = document.createElement('div');
+        indicators.className = 'carousel-indicators';
+        images.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.className = 'carousel-indicator' + (idx === 0 ? ' active' : '');
+            dot.dataset.index = idx;
+            indicators.appendChild(dot);
+        });
+        wrapper.appendChild(indicators);
+    }
+
+    wrapper.appendChild(track);
+    return wrapper;
+}
+
+/**
+ * Initialize all carousels in the DOM.
+ * Call this after products are rendered.
+ */
+function initCarousels() {
+    document.querySelectorAll('.product-carousel').forEach(carousel => {
+        const track = carousel.querySelector('.carousel-track');
+        const slides = Array.from(track.children);
+        if (!slides.length) return;
+
+        let index = 0;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const getWidth = () => carousel.clientWidth;
+
+        const update = (animate = true) => {
+            if (!animate) track.style.transition = 'none';
+            else track.style.transition = '';
+            const offset = -index * getWidth();
+            track.style.transform = `translateX(${offset}px)`;
+            // indicators
+            const dots = carousel.querySelectorAll('.carousel-indicator');
+            dots.forEach(d => d.classList.remove('active'));
+            if (dots[index]) dots[index].classList.add('active');
+            // restore transition after immediate set
+            if (!animate) requestAnimationFrame(()=> track.style.transition = '');
+        };
+
+        // next/prev
+        const next = () => { index = Math.min(index + 1, slides.length - 1); update(); };
+        const prev = () => { index = Math.max(index - 1, 0); update(); };
+
+        // navigation buttons
+        const btnLeft = carousel.querySelector('.carousel-nav.left');
+        const btnRight = carousel.querySelector('.carousel-nav.right');
+        if (btnLeft) btnLeft.addEventListener('click', prev);
+        if (btnRight) btnRight.addEventListener('click', next);
+
+        // indicators
+        carousel.querySelectorAll('.carousel-indicator').forEach(dot => {
+            dot.addEventListener('click', () => {
+                index = Number(dot.dataset.index);
+                update();
+            });
+        });
+
+        // swipe handling
+        track.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            track.setPointerCapture(e.pointerId);
+            track.style.transition = 'none';
+        });
+        track.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX;
+            const diff = currentX - startX;
+            track.style.transform = `translateX(${-index * getWidth() + diff}px)`;
+        });
+        track.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = e.clientX - startX;
+            const threshold = getWidth() * 0.15;
+            if (diff > threshold) prev();
+            else if (diff < -threshold) next();
+            else update();
+        });
+        track.addEventListener('pointercancel', () => { isDragging = false; update(); });
+
+        // handle window resize
+        window.addEventListener('resize', () => update(false));
+
+        // initial layout
+        update(false);
+    });
+}
+
+/**
+ * Helper: when rendering product cards, insert carousel element.
+ * Example usage in your product render loop:
+ *
+ * const productCard = document.createElement('div');
+ * productCard.className = 'product-card';
+ * const carouselEl = buildProductCarousel(product);
+ * if (carouselEl) productCard.appendChild(carouselEl);
+ * // ... add rest of product info ...
+ *
+ * After all products loaded, call:
+ * initCarousels();
+ */
+
+// If your existing product rendering function is named renderProducts or similar,
+// ensure it calls initCarousels() after populating #productsGrid.
+// Example (add near end of your render function):
+// initCarousels();

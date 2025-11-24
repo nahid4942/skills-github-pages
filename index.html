@@ -31,8 +31,8 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-content">
                 <div class="loading-logo">
-                <img src="logo6.png" alt="BLKPAPER Logo" class="logo-image">
-                <h2>BLKPAPER</h2>
+                <img src="logo6.png" alt="BLKPAPER Logo" height="200px" width="400px">
+                <h2></h2>
             </div>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
@@ -195,8 +195,6 @@
                 </div>
             </div>
         </div>
-    </section>
-
     <!-- Memory Band Feature -->
     <section class="memory-band-feature" id="memory-band">
         <div class="container">
@@ -329,6 +327,53 @@
                 <div class="about-image">
                     <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="BLKPAPER Story">
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Eco Corner --><!-- inserted: explains the purpose of Eco Corner -->
+    <section class="eco-about" id="eco-about">
+        <div class="container">
+            <div class="eco-about-content">
+                <div class="eco-about-text">
+                    <h2>About the Eco Corner</h2>
+                    <p>
+                        The Eco Corner highlights products made from recycled, upcycled, or sustainably-sourced materials.
+                        Choosing these items helps reduce waste, lower carbon footprints, and support responsible manufacturing.
+                    </p>
+                    <ul class="eco-benefits">
+                        <li><strong>Less Waste:</strong> Uses recycled materials to give products a second life.</li>
+                        <li><strong>Lower Footprint:</strong> Reduced energy and resource use during production.</li>
+                        <li><strong>Ethical Choice:</strong> Supports brands that prioritize people and planet.</li>
+                    </ul>
+                    <div style="margin-top:14px;">
+                        <button class="btn btn-outline" onclick="scrollToSection('#eco-corner')">Explore Eco Products</button>
+                    </div>
+                </div>
+                <div class="eco-about-visual">
+                    <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Eco Materials" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eco Corner -->
+    <section class="eco-corner" id="eco-corner">
+        <div class="container">
+            <div class="section-header">
+                <h2>Eco Corner</h2>
+                <p>Products made from recycled or sustainable materials — kinder to the planet.</p>
+            </div>
+
+            <!-- Eco Products Grid -->
+            <div class="products-grid" id="ecoProductsGrid">
+                <!-- Eco-friendly products rendered here -->
+            </div>
+
+            <div class="eco-actions" style="text-align:center; margin-top:18px;">
+                <button class="btn btn-outline" onclick="filterProducts('all'); scrollToSection('#shop');">
+                    View All Products
+                </button>
             </div>
         </div>
     </section>

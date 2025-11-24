@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLKPAPER - Redefine Your Style. Capture Every Memory.</title>
+    <meta name="description" content="BLKPAPER - Modern fashion and lifestyle brand from Bangladesh. Shop clothing, sunglasses, accessories, and the exclusive Memory Band. 20% OFF on first purchase!">
+    <meta name="keywords" content="BLKPAPER, fashion, clothing, sunglasses, accessories, Memory Band, Bangladesh, lifestyle, urban style">
+    <meta property="og:title" content="BLKPAPER - Redefine Your Style">
+    <meta property="og:description" content="Modern fashion and lifestyle brand offering exclusive clothing, accessories, and the revolutionary Memory Band">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="logo6.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo6.png">
+    <link rel="apple-touch-icon" href="logo6.png">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+                <div class="loading-logo">
+                <img src="logo6.png" alt="BLKPAPER Logo" class="logo-image">
+                <h2>BLKPAPER</h2>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Loading your style...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <!-- Logo -->
+                <div class="nav-logo">
+                <a href="#home">
+                    <img src="logo6.png" alt="BLKPAPER Logo" class="logo-image">
+                </a>
+            </div>
+
+            <!-- Navigation Menu -->
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link active">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#shop" class="nav-link">Shop</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#categories" class="nav-link">Categories</a>
+                    <div class="dropdown-menu">
+                        <a href="#clothing" data-category="clothing">Clothing</a>
+                        <a href="#sunglasses" data-category="sunglasses">Sunglasses</a>
+                        <a href="#accessories" data-category="accessories">Accessories</a>
+                        <a href="#memory-band" data-category="memory-band">Memory Band</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+
+            <!-- Cart & Actions -->
+            <div class="nav-actions">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span>NEW COLLECTION</span>
+                </div>
+                <h1 class="hero-title">
+                    <span class="hero-line">Redefine Your</span>
+                    <span class="hero-line highlight">STYLE</span>
+                    <span class="hero-line">Capture Every</span>
+                    <span class="hero-line highlight">MEMORY</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Modern fashion and lifestyle brand from Bangladesh. 
+                    Discover our exclusive collections including the revolutionary Memory Band.
+                </p>
+                <div class="hero-offer">
+                    <div class="offer-badge">
+                        <i class="fas fa-bolt"></i>
+                        <span>20% OFF on First Purchase</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollToSection('#shop')">
+                        <i class="fas fa-shopping-bag"></i>
+                        Shop Now
+                    </button>
+                    <button class="btn btn-outline" onclick="scrollToSection('#memory-band')">
+                        <i class="fas fa-star"></i>
+                        Discover Memory Band
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-product">
+                    <img src="hero.jfif" alt="BLKPAPER Fashion" class="hero-img">
+                    <div class="hero-product-info">
+                        <span class="product-name">Urban Collection</span>
+                        <span class="product-price">From ৳900</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span>Scroll to explore</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Featured Categories -->
+    <section class="categories" id="categories">
+        <div class="container">
+            <div class="section-header">
+                <h2>Shop by Category</h2>
+                <p>Discover our carefully curated collections</p>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card" data-category="clothing">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Clothing">
+                        <div class="category-overlay">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                    </div>
+                    <div class="category-info">
+                        <h3>Clothing</h3>
+                        <p>Premium streetwear and essentials</p>
+                        <span class="category-count">25+ items</span>
+                    </div>
+                </div>
+                
+                <div class="category-card" data-category="sunglasses">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Sunglasses">
+                        <div class="category-overlay">
+                            <i class="fas fa-glasses"></i>
+                        </div>
+                    </div>
+                    <div class="category-info">
+                        <h3>Sunglasses</h3>
+                        <p>Protect your style</p>
+                        <span class="category-count">15+ items</span>
+                    </div>
+                </div>
+                
+                <div class="category-card" data-category="accessories">
+                    <div class="category-image">
+                        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Accessories">
+                        <div class="category-overlay">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                    </div>
+                    <div class="category-info">
+                        <h3>Accessories</h3>
+                        <p>Complete your look</p>
+                        <span class="category-count">20+ items</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Band Feature -->
+    <section class="memory-band-feature" id="memory-band">
+        <div class="container">
+            <div class="memory-band-content">
+                <div class="memory-band-info">
+                    <div class="feature-badge">
+                        <i class="fas fa-gem"></i>
+                        <span>EXCLUSIVE</span>
+                    </div>
+                    <h2>The Memory Band</h2>
+                    <p class="memory-band-description">
+                        Our flagship product that revolutionizes how you capture and relive your most precious moments. 
+                        The Memory Band isn't just an accessory—it's a gateway to your memories.
+                    </p>
+                    <div class="memory-band-features">
+                        <div class="feature-item">
+                            <i class="fas fa-microchip"></i>
+                            <div>
+                                <h4>Smart Technology</h4>
+                                <p>Advanced memory storage capabilities</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-palette"></i>
+                            <div>
+                                <h4>Premium Design</h4>
+                                <p>Sleek, minimalist aesthetic</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h4>Durable Build</h4>
+                                <p>Water-resistant and long-lasting</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="memory-band-price">
+                        <span class="price">৳2,500</span>
+                        <span class="original-price">৳3,000</span>
+                        <span class="discount">17% OFF</span>
+                    </div>
+                    <div class="memory-band-actions">
+                        <button class="btn btn-primary btn-large" onclick="addToCart('memory-band-001')">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                        <button class="btn btn-outline">
+                            <i class="fas fa-info-circle"></i>
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+                <div class="memory-band-visual">
+                    <div class="memory-band-showcase">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Memory Band" class="memory-band-img">
+                        <div class="memory-band-glow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Showcase -->
+    <section class="products" id="shop">
+        <div class="container">
+            <div class="section-header">
+                <h2>Latest Collection</h2>
+                <p>Handpicked items for the modern lifestyle</p>
+            </div>
+            
+            <!-- Product Filters -->
+            <div class="product-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="clothing">Clothing</button>
+                <button class="filter-btn" data-filter="sunglasses">Sunglasses</button>
+                <button class="filter-btn" data-filter="accessories">Accessories</button>
+                <button class="filter-btn" data-filter="memory-band">Memory Band</button>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="load-more">
+                <button class="btn btn-outline" id="loadMoreBtn">
+                    <i class="fas fa-plus"></i>
+                    Load More Products
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About BLKPAPER</h2>
+                    <p class="about-description">
+                        Born in Bangladesh, BLKPAPER represents the perfect fusion of modern design and cultural authenticity. 
+                        We believe that fashion is more than just clothing—it's a form of self-expression that captures and preserves your most meaningful moments.
+                    </p>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">Happy Customers</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">Products Sold</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">5+</span>
+                            <span class="stat-label">Unique Designs</span>
+                        </div>
+                    </div>
+                    <div class="about-values">
+                        <h3>Our Values</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Quality craftsmanship</li>
+                            <li><i class="fas fa-check"></i> Sustainable practices</li>
+                            <li><i class="fas fa-check"></i> Cultural authenticity</li>
+                            <li><i class="fas fa-check"></i> Customer satisfaction</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="BLKPAPER Story">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Get in Touch</h2>
+                    <p>Have questions about our products or need styling advice? We're here to help!</p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="method-info">
+                                <h4>Phone</h4>
+                                <p>01577030164</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="method-info">
+                                <h4>Email</h4>
+                                <p>blkpaper399@gmail.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="method-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="method-info">
+                                <h4>Location</h4>
+                                <p>sector#6,uttara,Dhaka,Bangladesh</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/blk.paper/" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.facebook.com/profile.php?id=61581879882575" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@blkpaper" class="social-link">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <form class="contact-form" id="contactForm">
+                        <h3>Send us a Message</h3>
+                        <div class="form-group">
+                            <input type="text" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="phone" placeholder="Your Phone Number">
+                        </div>
+                        <div class="form-group">
+                            <select name="subject" required>
+                                <option value="">Select Subject</option>
+                                <option value="product-inquiry">Product Inquiry</option>
+                                <option value="order-support">Order Support</option>
+                                <option value="collaboration">Collaboration</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="message" placeholder="Your Message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="logo.png" alt="BLKPAPER Logo" class="logo-image">
+                    <span>BLKPAPER</span>
+                </div>
+                <p>Redefine your style. Capture every memory. Modern fashion and lifestyle brand from Bangladesh.</p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/blk.paper/"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61581879882575"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.youtube.com/@blkpaper"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#shop">Shop</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a href="#clothing">Clothing</a></li>
+                    <li><a href="#sunglasses">Sunglasses</a></li>
+                    <li><a href="#accessories">Accessories</a></li>
+                    <li><a href="#memory-band">Memory Band</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Customer Care</h4>
+                <ul>
+                    <li><a href="#shipping">Shipping Info</a></li>
+                    <li><a href="#returns">Returns</a></li>
+                    <li><a href="#size-guide">Size Guide</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#cookies">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2025 BLKPAPER. All rights reserved. Made with ❤️ in Bangladesh</p>
+                <div class="payment-methods">
+                    <span>We accept:</span>
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button class="cart-close" id="cartClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be dynamically loaded -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <div class="total-line">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">৳0</span>
+                </div>
+                <div class="total-line shipping">
+                    <span>Shipping:</span>
+                    <span id="cartShipping">৳100</span>
+                </div>
+                <div class="total-line total">
+                    <span>Total:</span>
+                    <span id="cartTotal">৳0</span>
+                </div>
+            </div>
+            <div class="cart-actions">
+                <button class="btn btn-outline" onclick="viewCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    View Cart
+                </button>
+                <button class="btn btn-primary" onclick="proceedToCheckout()">
+                    <i class="fas fa-credit-card"></i>
+                    Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Quick View Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Product Details</h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Product details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <div class="search-header">
+                <input type="text" placeholder="Search products..." id="searchInput">
+                <button class="search-close" id="searchClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <!-- Search results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- WhatsApp Float -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/8801700000000" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Scripts -->
+        <!-- JavaScript -->
+    <script>
+        // Ensure minimal globals exist before the main script loads (defensive for older caches)
+        // Use `var` so a global identifier `cart`/`products` exists for legacy inline calls.
+        var cart = window.cart || [];
+        var products = window.products || [];
+    </script>
+    <script src="script.js"></script>
+    
+    <!-- Test Suite (Development Only) -->
+    <script src="test-suite.js"></script>
+        <script>
+            // Ensure 102.png is used where possible. Try a few candidate locations and replace logo/image links if found.
+            (async function ensureLogo(){
+                const candidates = ['logo6.png','logo5.png','logo.png','102.png','../blkpaper/logo6.png','../blkpaper/logo5.png','../blkpaper/102.png','../blkpaperpos/logo6.png'];
+                let found = null;
+                for(const c of candidates){
+                    try{
+                        const r = await fetch(c, {method:'HEAD'});
+                        if(r && (r.ok || r.status===0)){ found = c; break; }
+                    }catch(e){}
+                }
+                if(!found) return; // nothing to do
+                // replace img.logo-image src
+                document.querySelectorAll('img.logo-image').forEach(img=>{ img.src = found; });
+                // replace favicon links
+                document.querySelectorAll('link[rel~="icon"]').forEach(l=>{ l.href = found; });
+                document.querySelectorAll('link[rel~="apple-touch-icon"]').forEach(l=>{ l.href = found; });
+                // replace og:image meta
+                const og = document.querySelector('meta[property="og:image"]'); if(og) og.content = found;
+            })();
+        </script>
+</body>
+</html>
