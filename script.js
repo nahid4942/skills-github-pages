@@ -719,6 +719,9 @@ function displayProducts(limit = 8) {
 
 function createProductCard(product) {
     const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+    // Use a display name if set (eco copies may provide a different display name)
+    const displayName = product.displayName || product.name;
+
     // Normalize image source: support `image` as string, `image` as array, or `images` array
     const imgSrc = Array.isArray(product.image) ? (product.image[0] || '') : (product.image || (product.images && product.images[0]) || '');
 
@@ -726,7 +729,7 @@ function createProductCard(product) {
         <div class="product-card ${product.featured ? 'featured' : ''} ${!product.inStock ? 'out-of-stock' : ''}" 
              data-category="${product.category}">
             <div class="product-image">
-                <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.opacity=0.6;this.nextElementSibling && (this.nextElementSibling.style.display='block')">
+                <img src="${imgSrc}" alt="${displayName}" loading="lazy" onerror="this.style.opacity=0.6;this.nextElementSibling && (this.nextElementSibling.style.display='block')">
                 ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
                 ${!product.inStock ? `<div class="product-badge" style="background: var(--accent-danger);">Out of Stock</div>` : ''}
                 ${product.eco ? `<div class="eco-badge"><i class="fas fa-leaf"></i>Eco</div>` : ''}
@@ -741,7 +744,7 @@ function createProductCard(product) {
             </div>
             <div class="product-info">
                 <div class="product-category">${getCategoryName(product.category)}</div>
-                <h3 class="product-name">${product.name}</h3>
+                <h3 class="product-name">${displayName}</h3>
                 <p class="product-description">${product.description}</p>
                 ${product.category === 'clothing' ? `
                 <div class="product-size">
@@ -776,12 +779,29 @@ function initializeEcoCorner() {
     const ecoGrid = document.getElementById('ecoProductsGrid');
     if (!ecoGrid) return;
 
-    const ecoProducts = products.filter(p => p.eco === true);
+    // Build independent copies of eco products so modifying eco display/data doesn't mutate main products
+    const ecoRaw = products.filter(p => p.eco === true);
 
-    if (!ecoProducts || ecoProducts.length === 0) {
+    if (!ecoRaw || ecoRaw.length === 0) {
         ecoGrid.innerHTML = '<p class="muted">No eco-friendly products available yet. Check back soon.</p>';
         return;
     }
+
+    const ecoProducts = ecoRaw.map(p => {
+        // shallow copy is sufficient for display overrides
+        const copy = Object.assign({}, p);
+        // Distinct displayName for eco corner
+        copy.displayName = (p.displayName || p.name) + ' — Eco Corner';
+        // Optionally highlight eco pricing (small discount shown to users)
+        if (typeof p.price === 'number') copy.price = Math.round(p.price * 0.95);
+        // Set eco image and mark as out of stock for Eco Corner display
+        copy.image = 'cm.png';
+        copy.images = ['cm.png'];
+        copy.inStock = false;
+        // Mark as eco variant
+        copy.isEcoVariant = true;
+        return copy;
+    });
 
     ecoGrid.innerHTML = ecoProducts.map(p => createProductCard(p)).join('');
 }
