@@ -29,12 +29,12 @@ const productData = [
         id: 'memory-band-001',
         name: 'Memory Band Classic',
         category: 'memory-band',
-        price: 2500,
-        originalPrice: 3000,
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        price: 1500,
+        originalPrice: 1800,
+        image: 'wnb/m1p1.png',
         description: 'Revolutionary memory storage device with premium design and smart technology.',
         featured: true,
-        inStock: false,
+        inStock: true,
         rating: 5,
         reviews: 124
     },
@@ -719,12 +719,14 @@ function displayProducts(limit = 8) {
 
 function createProductCard(product) {
     const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
-    
+    // Normalize image source: support `image` as string, `image` as array, or `images` array
+    const imgSrc = Array.isArray(product.image) ? (product.image[0] || '') : (product.image || (product.images && product.images[0]) || '');
+
     return `
         <div class="product-card ${product.featured ? 'featured' : ''} ${!product.inStock ? 'out-of-stock' : ''}" 
              data-category="${product.category}">
             <div class="product-image">
-                <img src="${product.image || (product.images && product.images[0]) || ''}" alt="${product.name}" loading="lazy">
+                <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.opacity=0.6;this.nextElementSibling && (this.nextElementSibling.style.display='block')">
                 ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
                 ${!product.inStock ? `<div class="product-badge" style="background: var(--accent-danger);">Out of Stock</div>` : ''}
                 ${product.eco ? `<div class="eco-badge"><i class="fas fa-leaf"></i>Eco</div>` : ''}
@@ -825,7 +827,7 @@ function quickView(productId) {
     modalBody.innerHTML = `
         <div class="product-quick-view">
             <div class="quick-view-image">
-                <img src="${product.image || (product.images && product.images[0]) || ''}" alt="${product.name}">
+                <img src="${Array.isArray(product.image) ? (product.image[0]||'') : (product.image || (product.images && product.images[0]) || '')}" alt="${product.name}" onerror="this.style.opacity=0.6">
             </div>
             <div class="quick-view-info">
                 <div class="product-category">${getCategoryName(product.category)}</div>
