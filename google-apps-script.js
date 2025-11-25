@@ -32,8 +32,12 @@ function setSpreadsheetId(spreadsheetId) {
  */
 function doPost(e) {
     try {
-        // Parse incoming payload
-        const data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
+        // Parse incoming payload. Support both JSON body and form-encoded 'payload' param.
+        const raw = (e && e.parameter && e.parameter.payload) ? e.parameter.payload : (e.postData && e.postData.contents ? e.postData.contents : null);
+        let data = {};
+        if (raw) {
+            try { data = JSON.parse(raw); } catch (err) { data = {}; }
+        }
 
         // If this is a sendReport action, handle server-side PDF/email
         if(data.action === 'sendReport'){
@@ -71,6 +75,16 @@ function doPost(e) {
 function doGet(e) {
     try{
         const action = (e && e.parameter && e.parameter.action) ? String(e.parameter.action) : '';
+        // Ensure endpoint: creates spreadsheet and sheet if missing and returns info
+        if (action === 'ensure') {
+            try {
+                const sheet = getOrCreateSheet();
+                const info = getSpreadsheetInfo();
+                return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'ensured',info:info})).setMimeType(ContentService.MimeType.JSON);
+            } catch (err) {
+                return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.message})).setMimeType(ContentService.MimeType.JSON);
+            }
+        }
         if(action === 'getOrders'){
             // Return normalized orders as JSON. Support optional ?since=YYYY-MM-DD
             const raw = getAllOrders();
@@ -85,6 +99,16 @@ function doGet(e) {
                 }
             }
             return ContentService.createTextOutput(JSON.stringify({orders:normalized})).setMimeType(ContentService.MimeType.JSON);
+        }
+        // Create a new spreadsheet (name optional) and set it as the active BLKPAPER spreadsheet
+        if (action === 'createSheet') {
+            try {
+                const name = (e && e.parameter && e.parameter.name) ? String(e.parameter.name) : null;
+                const info = createNewSpreadsheet(name);
+                return ContentService.createTextOutput(JSON.stringify({status:'ok',message:'created',info:info})).setMimeType(ContentService.MimeType.JSON);
+            } catch (err) {
+                return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.message})).setMimeType(ContentService.MimeType.JSON);
+            }
         }
         if(action === 'info'){
             const info = getSpreadsheetInfo();
@@ -165,6 +189,17 @@ function getOrCreateSheet() {
  * Set up the spreadsheet headers
  */
 function setupSpreadsheetHeaders(sheet) {
+    // Defensive: if sheet is not provided, try to obtain or create it
+    if (!sheet) {
+        console.log('setupSpreadsheetHeaders called with undefined sheet — attempting to get or create sheet');
+        try {
+            sheet = getOrCreateSheet();
+        } catch (err) {
+            console.error('Failed to obtain sheet in setupSpreadsheetHeaders:', err);
+            throw new Error('No sheet available to setup headers: ' + err.message);
+        }
+    }
+
     const headers = [
         'Order ID',
         'Order Date',
@@ -188,14 +223,19 @@ function setupSpreadsheetHeaders(sheet) {
     ];
     
     // Set headers in row 1
-    const headerRange = sheet.getRange(1, 1, 1, headers.length);
-    headerRange.setValues([headers]);
-    
-    // Format headers
-    headerRange.setBackground('#000000');
-    headerRange.setFontColor('#FFFFFF');
-    headerRange.setFontWeight('bold');
-    headerRange.setFontSize(11);
+    try {
+        const headerRange = sheet.getRange(1, 1, 1, headers.length);
+        headerRange.setValues([headers]);
+
+        // Format headers
+        headerRange.setBackground('#000000');
+        headerRange.setFontColor('#FFFFFF');
+        headerRange.setFontWeight('bold');
+        headerRange.setFontSize(11);
+    } catch (err) {
+        console.error('Error while setting up spreadsheet headers:', err);
+        throw err;
+    }
     
     // Set column widths
     sheet.setColumnWidths(1, headers.length, 120);
@@ -212,7 +252,12 @@ function setupSpreadsheetHeaders(sheet) {
     
     console.log('Spreadsheet headers set up successfully');
 }
+function setNotificationEmail(email) {
+  PropertiesService.getScriptProperties().setProperty('NOTIFICATION_EMAIL', email);
+}
 
+const email = PropertiesService.getScriptProperties().getProperty('NOTIFICATION_EMAIL');
+// use email if present
 /**
  * Add data validation and conditional formatting
  */
@@ -322,6 +367,58 @@ function addOrderToSheet(sheet, orderData) {
     
     // Send notification email (optional)
     sendOrderNotificationEmail(orderData);
+    
+    // Send invoice/bill to customer email (if provided)
+    try {
+        sendBillToCustomer(orderData);
+    } catch (err) {
+        console.error('Failed to send bill to customer:', err);
+    }
+}
+
+/**
+ * Send a simple HTML invoice to the customer email (if present)
+ * @param {Object} orderData
+ */
+function sendBillToCustomer(orderData) {
+    try {
+        const to = orderData.customerEmail || orderData.customerEmailAddress || '';
+        if (!to || typeof to !== 'string' || to.indexOf('@') === -1) {
+            console.log('No valid customer email provided, skipping customer invoice.');
+            return;
+        }
+
+        const subject = `Your BLKPAPER Order ${orderData.orderId}`;
+
+        // Build a basic HTML invoice
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>Invoice</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#111}h1{background:#000;color:#fff;padding:12px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:8px;border:1px solid #eee;text-align:left}tfoot td{font-weight:bold}</style></head><body>` +
+            `<h1>BLKPAPER — Invoice</h1>` +
+            `<p>Order ID: <strong>${orderData.orderId || ''}</strong></p>` +
+            `<p>Date: ${orderData.orderDate || ''}</p>` +
+            `<h3>Customer</h3><p>${orderData.customerName || ''}<br/>${orderData.customerEmail || ''}<br/>${orderData.customerPhone || ''}</p>` +
+            `<h3>Items</h3>` +
+            `<table><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th></tr></thead><tbody>` +
+            (orderData.itemsDetails ? orderData.itemsDetails.split(' | ').map(function(it){
+                // try to parse simple pattern "Name (Qty: x, Price: ৳y)"
+                return `<tr><td>${it}</td><td style="text-align:right">-</td><td style="text-align:right">-</td></tr>`;
+            }).join('') : '<tr><td colspan="3">No item details</td></tr>') +
+            `</tbody><tfoot><tr><td></td><td style="text-align:right">Subtotal</td><td style="text-align:right">৳${orderData.subtotal || 0}</td></tr>` +
+            `<tr><td></td><td style="text-align:right">Shipping</td><td style="text-align:right">৳${orderData.shipping || 0}</td></tr>` +
+            `<tr><td></td><td style="text-align:right">Total</td><td style="text-align:right">৳${orderData.total || 0}</td></tr></tfoot></table>` +
+            `<p style="margin-top:12px">Thank you for shopping with BLKPAPER.</p>` +
+            `</body></html>`;
+
+        MailApp.sendEmail({
+            to: to,
+            subject: subject,
+            htmlBody: html
+        });
+
+        console.log('Invoice emailed to customer:', to);
+    } catch (error) {
+        console.error('Error in sendBillToCustomer:', error);
+        throw error;
+    }
 }
 
 /**
@@ -412,30 +509,21 @@ function sendOrderNotificationEmail(orderData) {
  */
 function setupBLKPAPEROrderSystem() {
     // Create spreadsheet and set up headers
+    // Non-interactive setup suitable for web-app execution.
+    // This will create the spreadsheet (if none exists) and store its ID in script properties.
     const sheet = getOrCreateSheet();
-    
+
     // Get the spreadsheet ID for reference
     const spreadsheetId = getSpreadsheetId();
-    
-    // Set notification email (optional)
-    const email = Browser.inputBox('Setup', 'Enter email for order notifications (optional):', Browser.Buttons.OK_CANCEL);
-    if (email && email !== 'cancel') {
-        PropertiesService.getScriptProperties().setProperty('NOTIFICATION_EMAIL', email);
-    }
-    
-    console.log('BLKPAPER Order System setup complete!');
+
+    // Do NOT use Browser.inputBox or Browser.msgBox here; those UI methods are only available
+    // when running from the Apps Script editor and will fail when the script is executed as a web app.
+    // To configure a notification email, call `setNotificationEmail(email)` separately from the editor.
+
+    console.log('BLKPAPER Order System setup complete (non-interactive).');
     console.log('Spreadsheet ID:', spreadsheetId);
     console.log('Spreadsheet URL:', 'https://docs.google.com/spreadsheets/d/' + spreadsheetId);
-    console.log('ALL ORDERS will be saved to this single spreadsheet');
-    console.log('Deploy this script as a web app and copy the URL to your website.');
-    
-    // Display setup confirmation
-    Browser.msgBox('Setup Complete!', 
-        'BLKPAPER Order System is ready!\\n\\n' +
-        'Spreadsheet ID: ' + spreadsheetId + '\\n\\n' +
-        'All orders will be saved to this single spreadsheet.\\n' +
-        'Deploy as web app and update your website with the script URL.',
-        Browser.Buttons.OK);
+    console.log('All future orders will use this spreadsheet. To set notification email, run setNotificationEmail(email) from the script editor.');
 }
 
 /**
@@ -552,30 +640,22 @@ function getSpreadsheetInfo() {
  * WARNING: This will create a new spreadsheet and lose reference to the old one
  */
 function resetSystem() {
-    const confirmation = Browser.msgBox('Reset System', 
-        'This will create a NEW spreadsheet for orders.\\n\\n' +
-        'Your existing orders will NOT be deleted, but future orders will go to the new spreadsheet.\\n\\n' +
-        'Are you sure?', 
-        Browser.Buttons.YES_NO);
-    
-    if (confirmation === Browser.Buttons.YES) {
-        // Clear stored spreadsheet ID
-        PropertiesService.getScriptProperties().deleteProperty('BLKPAPER_SPREADSHEET_ID');
-        
-        // Create new spreadsheet
-        const sheet = getOrCreateSheet();
-        const newSpreadsheetId = getSpreadsheetId();
-        
-        console.log('System reset complete!');
-        console.log('New Spreadsheet ID:', newSpreadsheetId);
-        console.log('New Spreadsheet URL:', 'https://docs.google.com/spreadsheets/d/' + newSpreadsheetId);
-        
-        Browser.msgBox('Reset Complete!', 
-            'New spreadsheet created!\\n\\n' +
-            'Spreadsheet ID: ' + newSpreadsheetId + '\\n\\n' +
-            'All future orders will use this new spreadsheet.',
-            Browser.Buttons.OK);
+    // Non-interactive reset: to avoid UI calls in web-app mode, require explicit confirmation flag
+    // Usage: resetSystem(true) will perform the reset. Calling without `true` will log instructions.
+    const force = arguments.length > 0 ? arguments[0] : false;
+    if (force !== true) {
+        console.log('resetSystem requires explicit confirmation. Call resetSystem(true) to perform the reset.');
+        return;
     }
+
+    // Clear stored spreadsheet ID and create a new spreadsheet
+    PropertiesService.getScriptProperties().deleteProperty('BLKPAPER_SPREADSHEET_ID');
+    const sheet = getOrCreateSheet();
+    const newSpreadsheetId = getSpreadsheetId();
+
+    console.log('System reset complete!');
+    console.log('New Spreadsheet ID:', newSpreadsheetId);
+    console.log('New Spreadsheet URL:', 'https://docs.google.com/spreadsheets/d/' + newSpreadsheetId);
 }
 
 /**
@@ -633,4 +713,31 @@ function buildReportHtmlForNormalized(orders, sinceDate, toDate){
     `<h3 style="margin-top:14px">Payment Summary</h3><table><thead><tr><th>Method</th><th>Total</th></tr></thead><tbody>${payRows}</tbody></table>` +
     `<h3 style="margin-top:14px">Recent Orders</h3><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Date</th></tr></thead><tbody>${recentRows}</tbody></table>` +
     `<div style="margin-top:18px;font-size:12px;color:#666">Generated: ${Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm')}</div></body></html>`;
+}
+
+/**
+ * Create a new spreadsheet and register its ID in script properties.
+ * If a sheet with the configured `CONFIG.SHEET_NAME` does not exist, it will be created and headers will be set.
+ * @param {string=} name Optional spreadsheet name. If omitted, defaults to 'BLKPAPER Orders Database'.
+ * @returns {{spreadsheetId: string, spreadsheetUrl: string}}
+ */
+function createNewSpreadsheet(name) {
+    const title = name && String(name).trim() ? String(name).trim() : 'BLKPAPER Orders Database';
+    const ss = SpreadsheetApp.create(title);
+    const id = ss.getId();
+    // Persist ID
+    setSpreadsheetId(id);
+
+    // Ensure orders sheet exists and has headers
+    let sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    if (!sheet) {
+        sheet = ss.insertSheet(CONFIG.SHEET_NAME);
+        setupSpreadsheetHeaders(sheet);
+    }
+
+    console.log('createNewSpreadsheet created:', id);
+    return {
+        spreadsheetId: id,
+        spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/' + id
+    };
 }

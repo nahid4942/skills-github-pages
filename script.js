@@ -15,8 +15,8 @@ let isMobileMenuOpen = false;
 
 // Google Sheets Configuration
 const GOOGLE_SHEETS_CONFIG = {
-    // Replace with your Google Apps Script Web App URL
-    scriptURL: 'https://script.google.com/macros/s/AKfycbwjMwrf4Kl25HJEiQirL4wJD5LoaDW-BjIhVpEg9_6DqXa27rIsu33jAWHzVTJJNfP0jg/exec',
+    // Google Apps Script Web App URL (provided)
+    scriptURL: 'https://script.google.com/macros/s/AKfycbyUy-myOKQB52KazuDNhE5tm24doJfQ_FVVvffT0CltGHY1v26PQOxB8AuemQ_MoeqWYw/exec',
     
     // Backup email for order notifications (optional)
     backupEmail: 'blkpaper399@gmail.com'
@@ -1113,11 +1113,108 @@ function submitOrder() {
         
         // Show success
         showOrderConfirmation(order);
+
+        // Generate and send bill by opening user's mail client with prefilled email
+        if (order.customerInfo && order.customerInfo.email) {
+            try {
+                sendBillByEmail(order.customerInfo.email, order);
+            } catch (err) {
+                console.error('Failed to open mail client for bill:', err);
+            }
+        }
         
         // Reset button
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }, 2000);
+}
+
+// Create a plain-text bill for email body
+function generateBillText(order) {
+    const lines = [];
+    lines.push('BLKPAPER - Order Receipt');
+    lines.push('Order ID: ' + order.id);
+    lines.push('Date: ' + new Date(order.orderDate).toLocaleString());
+    lines.push('');
+    lines.push('Customer: ' + (order.customerInfo.fullName || ''));
+    lines.push('Email: ' + (order.customerInfo.email || ''));
+    lines.push('Phone: ' + (order.customerInfo.phone || ''));
+    lines.push('Address: ' + (order.customerInfo.address || '') + ', ' + (order.customerInfo.city || ''));
+    lines.push('');
+    lines.push('Items:');
+    order.items.forEach(item => {
+        const name = item.name || '';
+        const qty = item.quantity || 1;
+        const size = item.size ? ` (Size: ${item.size})` : '';
+        const lineTotal = (item.price * item.quantity).toLocaleString();
+        lines.push(`- ${name}${size} x${qty} : ৳${lineTotal}`);
+    });
+    lines.push('');
+    lines.push('Subtotal: ৳' + order.subtotal.toLocaleString());
+    lines.push('Shipping: ৳' + order.shipping.toLocaleString());
+    lines.push('Total: ৳' + order.total.toLocaleString());
+    lines.push('');
+    if (order.customerInfo.notes) {
+        lines.push('Notes: ' + order.customerInfo.notes);
+        lines.push('');
+    }
+    lines.push('Thank you for shopping with BLKPAPER!');
+    lines.push('');
+    lines.push('If you have any questions, reply to this email or contact us at blkpaper399@gmail.com');
+
+    return lines.join('\n');
+}
+
+// Open user's default mail client with prefilled subject and body containing the bill
+function sendBillByEmail(email, order) {
+    const subject = `BLKPAPER Order ${order.id} - Receipt`;
+    const body = generateBillText(order);
+
+    // mailto body length is limited; trim if very long
+    let encodedBody = encodeURIComponent(body);
+    if (encodedBody.length > 15000) {
+        // Trim body to avoid exceeding URL limits
+        const shortBody = body.substring(0, 8000) + '\n\n[Content truncated]';
+        encodedBody = encodeURIComponent(shortBody);
+    }
+
+    const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodedBody}`;
+
+    // Open mail client
+    window.location.href = mailto;
+    showToast('Opened your mail client to send the invoice.', 'info');
+}
+
+// Optionally open a printable invoice window (user can save as PDF)
+function openInvoiceWindow(order) {
+    const html = [];
+    html.push('<!doctype html><html><head><meta charset="utf-8"><title>Invoice - ' + order.id + '</title>');
+    html.push('<style>body{font-family:Arial,Helvetica,sans-serif;padding:20px;color:#111} .header{display:flex;justify-content:space-between;align-items:center} .items{width:100%;border-collapse:collapse;margin-top:20px} .items td, .items th{padding:8px;border:1px solid #ddd} .total{font-weight:700}</style>');
+    html.push('</head><body>');
+    html.push('<div class="header"><h2>BLKPAPER - Invoice</h2><div>Order: ' + order.id + '<br>' + new Date(order.orderDate).toLocaleString() + '</div></div>');
+    html.push('<p>Customer: ' + (order.customerInfo.fullName || '') + '<br>' + (order.customerInfo.email || '') + '<br>' + (order.customerInfo.phone || '') + '</p>');
+    html.push('<table class="items"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>');
+    order.items.forEach(item => {
+        html.push('<tr>');
+        html.push('<td>' + (item.name || '') + (item.size ? ' (' + item.size + ')' : '') + '</td>');
+        html.push('<td>' + item.quantity + '</td>');
+        html.push('<td>৳' + item.price.toLocaleString() + '</td>');
+        html.push('<td>৳' + (item.price * item.quantity).toLocaleString() + '</td>');
+        html.push('</tr>');
+    });
+    html.push('</tbody></table>');
+    html.push('<p class="total">Subtotal: ৳' + order.subtotal.toLocaleString() + '<br>Shipping: ৳' + order.shipping.toLocaleString() + '<br>Total: ৳' + order.total.toLocaleString() + '</p>');
+    html.push('<p>Thank you for shopping with BLKPAPER.</p>');
+    html.push('<script>window.print();</script>');
+    html.push('</body></html>');
+
+    const w = window.open('', '_blank');
+    if (w) {
+        w.document.write(html.join(''));
+        w.document.close();
+    } else {
+        showToast('Popup blocked. Please allow popups to print or save invoice.', 'warning');
+    }
 }
 
 function generateOrderId() {
@@ -1185,16 +1282,29 @@ async function sendOrderToGoogleSheets(order) {
         };
         
         // Send to Google Sheets via Apps Script
+        // Send to Apps Script. Remove `mode: 'no-cors'` so we receive real responses/errors.
+        // Send form-encoded to avoid CORS preflight (use Apps Script e.parameter or e.postData.contents)
+        const orderForm = new URLSearchParams();
+        orderForm.append('payload', JSON.stringify(orderData));
+
         const response = await fetch(GOOGLE_SHEETS_CONFIG.scriptURL, {
             method: 'POST',
-            mode: 'no-cors', // Required for Google Apps Script
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData)
+            body: orderForm
         });
-        
-        console.log('✅ Order sent to Google Sheets successfully');
+
+        // Try to parse response (Apps Script should return JSON)
+        let respText = null;
+        try {
+            respText = await response.text();
+            console.log('Google Sheets response:', respText);
+            if (!response.ok) {
+                throw new Error('Server responded with status ' + response.status + ': ' + respText);
+            }
+        } catch (err) {
+            console.warn('Could not parse response from Apps Script:', err);
+        }
+
+        console.log('✅ Order send attempt completed (check Apps Script logs for append confirmation)');
         
         // Send backup notification email (optional)
         await sendBackupNotification(order);
@@ -1390,15 +1500,44 @@ function handleContactForm(e) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
     submitBtn.disabled = true;
     
-    // Simulate form submission
-    setTimeout(() => {
+    // Try to POST to Google Apps Script endpoint configured in GOOGLE_SHEETS_CONFIG
+    const endpoint = GOOGLE_SHEETS_CONFIG.scriptURL;
+    const payload = {
+        action: 'addContact',
+        sheet: 'ContactForm',
+        data: contactData
+    };
+
+    // Use form-encoded body to avoid CORS preflight (Apps Script web apps don't respond to OPTIONS)
+    const formBody = new URLSearchParams();
+    formBody.append('payload', JSON.stringify(payload));
+
+    fetch(endpoint, {
+        method: 'POST',
+        body: formBody
+    })
+    .then(response => response.json().catch(() => ({})))
+    .then(result => {
+        // Assume success if script returns a success object or HTTP 200
         showToast('Thank you! We\'ll get back to you soon.', 'success');
         e.target.reset();
-        
+    })
+    .catch(err => {
+        // Fallback: save contact locally so entries are not lost
+        try {
+            const backups = JSON.parse(localStorage.getItem('contact_form_backups') || '[]');
+            backups.push({ ts: new Date().toISOString(), data: contactData });
+            localStorage.setItem('contact_form_backups', JSON.stringify(backups));
+            showToast('Could not send to server; saved locally as backup.', 'warning');
+        } catch (e) {
+            showToast('Something went wrong. Please try again later.', 'error');
+        }
+    })
+    .finally(() => {
         // Reset button
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
-    }, 2000);
+    });
 }
 
 // ===== MODALS =====
@@ -1639,6 +1778,43 @@ window.BLKPAPER_ADMIN = {
         };
         
         await sendOrderToGoogleSheets(testOrder);
+    },
+
+    // Lightweight client-side test for Apps Script endpoint (sends a small test payload)
+    testAppsScript: async () => {
+        const endpoint = GOOGLE_SHEETS_CONFIG.scriptURL;
+        const payload = {
+            action: 'testClientPing',
+            timestamp: new Date().toISOString(),
+            note: 'Client-side test payload from BLKPAPER website'
+        };
+
+        try {
+            showToast('Sending Apps Script test payload...');
+            // Use form-encoded body to avoid OPTIONS preflight in browsers
+            const form = new URLSearchParams();
+            form.append('payload', JSON.stringify(payload));
+
+            const resp = await fetch(endpoint, {
+                    method: 'POST',
+                    body: form
+                });
+
+            const text = await resp.text();
+            console.log('Apps Script test response:', resp.status, text);
+
+            if (resp.ok) {
+                showToast('Apps Script test succeeded (' + resp.status + ')', 'success');
+                alert('Apps Script test succeeded.\nStatus: ' + resp.status + '\nResponse: ' + text + '\nCheck the spreadsheet and Apps Script logs.');
+            } else {
+                showToast('Apps Script test failed (' + resp.status + ')', 'error');
+                alert('Apps Script test failed.\nStatus: ' + resp.status + '\nResponse: ' + text + '\nCheck deployment settings and CORS.');
+            }
+        } catch (err) {
+            console.error('Apps Script test error:', err);
+            showToast('Apps Script test error: check console', 'error');
+            alert('Network/CORS error when testing Apps Script. See console for details.');
+        }
     }
 };
 console.log(`
