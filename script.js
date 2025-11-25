@@ -34,7 +34,7 @@ const productData = [
         image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         description: 'Revolutionary memory storage device with premium design and smart technology.',
         featured: true,
-        inStock: true,
+        inStock: false,
         rating: 5,
         reviews: 124
     },
@@ -42,13 +42,13 @@ const productData = [
     // Clothing
     {
         id: 'clothing-001',
-        name: 'BLKPAPER Urban Hoodie',
+        name: 'BLKPAPER   ash acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 1800,
-        originalPrice: 2200,
+        price: 720,
+        originalPrice: 900,
         images: [
-            'cloting/p3n1.png',
-            'cloting/p3n1.png'
+            'clothing/h1p1.png',
+            'clothing/h1p2.png'
         ],
         description: 'Premium cotton hoodie with minimalist design and comfortable fit.',
         eco: true,
@@ -59,11 +59,14 @@ const productData = [
     },
     {
         id: 'clothing-002',
-        name: 'Minimalist Black Tee',
+        name: 'BLKPAPER   black acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 1200,
-        originalPrice: null,
-        image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        price: 720,
+        originalPrice: 900,
+        image: [
+            'clothing/h2p1.png',
+            'clothing/h2p2.png'
+        ],
         description: 'Essential black t-shirt with premium fabric and perfect cut.',
         featured: false,
         inStock: true,
@@ -72,12 +75,15 @@ const productData = [
     },
     {
         id: 'clothing-003',
-        name: 'Street Style Jacket',
+        name: 'Street Style acid wash hoodie ',
         category: 'clothing',
-        price: 3500,
-        originalPrice: 4000,
-        image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        description: 'Urban jacket with modern cut and weather-resistant fabric.',
+        price: 720,
+        originalPrice: 900,
+        image: [
+            'clothing/h3p1.png',
+            'clothing/h3p2.png'
+        ],
+        description: 'Trendy street style hoodie with durable material and modern fit.',
         featured: true,
         inStock: true,
         rating: 4.9,
@@ -87,9 +93,9 @@ const productData = [
         id: 'clothing-004',
         name: 'Cargo Pants - Black',
         category: 'clothing',
-        price: 2200,
+        price: 700,
         originalPrice: null,
-        image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        image: 'bp1p1.png',
         description: 'Functional cargo pants with multiple pockets and modern silhouette.',
         featured: false,
         inStock: true,
@@ -100,9 +106,9 @@ const productData = [
         id: 'clothing-005',
         name: 'Oversized Sweatshirt',
         category: 'clothing',
-        price: 2000,
-        originalPrice: 2400,
-        image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        price: 640,
+        originalPrice: 800,
+        image: 'clothing/s1p1.png',
         description: 'Comfortable oversized sweatshirt perfect for casual wear.',
         featured: false,
         inStock: false,
@@ -158,7 +164,13 @@ const productData = [
         category: 'accessories',
         price: 800,
         originalPrice: 1000,
-        image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        image: [
+            'wnb/w1p1.png',
+            'wnb/w1p2.png',
+            'wnb/w1p3.png',
+            'wnb/w1p4.png'
+
+        ],
         description: 'Premium leather wallet with multiple card slots and coin pocket.',
         featured: false,
         inStock: true,
@@ -171,7 +183,12 @@ const productData = [
         category: 'accessories',
         price: 2800,
         originalPrice: 3200,
-        image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        image: [
+            'wnb/wt1p1.png',
+            'wnb/wt1p2.png',
+            
+
+        ],
         description: 'Sleek minimalist watch with black leather strap.',
         featured: true,
         inStock: true,
