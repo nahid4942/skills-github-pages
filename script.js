@@ -35,8 +35,8 @@ const productData = [
         description: 'Revolutionary memory storage device with premium design and smart technology.',
         featured: true,
         inStock: true,
-        rating: 5,
-        reviews: 124
+        rating: 0,
+        reviews: 0
     },
     
     // Clothing
@@ -44,8 +44,8 @@ const productData = [
         id: 'clothing-001',
         name: 'BLKPAPER   ash acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 720,
-        originalPrice: 900,
+        price: 800,
+        originalPrice: 1000,
         images: [
             'clothing/h1p1.png',
             'clothing/h1p2.png'
@@ -54,24 +54,25 @@ const productData = [
         eco: true,
         featured: false,
         inStock: true,
-        rating: 4.8,
-        reviews: 89
+        rating: 4.0,
+        reviews: 5
     },
     {
         id: 'clothing-002',
         name: 'BLKPAPER   black acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 720,
-        originalPrice: 900,
-        image: [
+        price: 800,
+        originalPrice: 1000,
+        images: [
             'clothing/h2p1.png',
-            'clothing/h2p2.png'
+            'clothing/h2p2.png',
+            'clothing/sc.png'
         ],
         description: 'Essential black t-shirt with premium fabric and perfect cut.',
         featured: false,
         inStock: true,
         rating: 4.7,
-        reviews: 156
+        reviews: 4
     },
     {
         id: 'clothing-003',
@@ -79,7 +80,7 @@ const productData = [
         category: 'clothing',
         price: 720,
         originalPrice: 900,
-        image: [
+        images: [
             'clothing/h3p1.png',
             'clothing/h3p2.png'
         ],
@@ -87,7 +88,7 @@ const productData = [
         featured: true,
         inStock: true,
         rating: 4.9,
-        reviews: 67
+        reviews: 4
     },
     {
         id: 'clothing-004',
@@ -95,12 +96,12 @@ const productData = [
         category: 'clothing',
         price: 700,
         originalPrice: null,
-        image: 'bp1p1.png',
+        image: 'clothing/bp1p1.png',
         description: 'Functional cargo pants with multiple pockets and modern silhouette.',
         featured: false,
         inStock: true,
         rating: 4.6,
-        reviews: 92
+        reviews: 3
     },
     {
         id: 'clothing-005',
@@ -113,7 +114,76 @@ const productData = [
         featured: false,
         inStock: false,
         rating: 4.5,
-        reviews: 73
+        reviews: 5
+    },
+    {
+        id: 'clothing-006',
+        name: 'Oversized Sweatshirt',
+        category: 'clothing',
+        price: 640,
+        originalPrice: 800,
+        images: [
+            'clothing/h1p1.png',
+            'clothing/h1p2.png',
+            'clothing/sc.png'
+        ],
+        description: 'Comfortable oversized sweatshirt perfect for casual wear.',
+        featured: false,
+        inStock: false,
+        rating: 4.5,
+        reviews: 3
+    },
+    {
+        id: 'clothing-007',
+        name: 'f1 x blkpaper acid-wash hoodie',
+        category: 'clothing',
+        price: 1000,
+        originalPrice: 1200,
+        images: [
+            'clothing/h7n1.png',
+            'clothing/h7n2.png',
+            'clothing/sc.png'
+        ],
+        description: 'f1 x blkpaper acid-wash hoodie with comfortable fit and unique design.',
+        featured: true,
+        inStock: true,
+        rating: 4.5,
+        reviews: 4
+    },
+    {
+        id: 'clothing-008',
+        name: 'oni black acid-wash hoodie',
+        category: 'clothing',
+        price: 1000,
+        originalPrice: 1200,
+        image: [
+            'clothing/h8n1.png',
+            'clothing/h8n2.png',
+            'clothing/sc.png'
+
+        ],
+        description: 'oni black acid-wash hoodie with comfortable fit and unique design.',
+        featured: false,
+        inStock: true,
+        rating: 4.5,
+        reviews: 2
+    },
+    {
+        id: 'clothing-009',
+        name: 'f1 x blkpaper  Redbull acid-wash hoodie',
+        category: 'clothing',
+        price: 1000,
+        originalPrice: 1200,
+        image: [
+            'clothing/h9n1.png',
+            'clothing/h9n2.png'
+            ,'clothing/sc.png'
+        ],
+        description: 'Comfortable oversized sweatshirt perfect for casual wear.',
+        featured: false,
+        inStock: true,
+        rating: 4.5,
+        reviews: 3
     },
     
     // Sunglasses
@@ -128,7 +198,7 @@ const productData = [
         featured: false,
         inStock: true,
         rating: 4.8,
-        reviews: 112
+        reviews: 1
     },
     {
         id: 'sunglasses-002',
@@ -140,8 +210,8 @@ const productData = [
         description: 'Vintage-inspired round sunglasses with modern lens technology.',
         featured: false,
         inStock: true,
-        rating: 4.6,
-        reviews: 85
+        rating: 0,
+        reviews: 0
     },
     {
         id: 'sunglasses-003',
@@ -153,8 +223,8 @@ const productData = [
         description: 'Bold square-frame sunglasses for statement style.',
         featured: true,
         inStock: true,
-        rating: 4.7,
-        reviews: 94
+        rating: 0,
+        reviews: 0
     },
     
     // Accessories
@@ -175,7 +245,7 @@ const productData = [
         featured: false,
         inStock: true,
         rating: 4.9,
-        reviews: 203
+        reviews: 2
     },
     {
         id: 'accessories-002',
@@ -192,8 +262,8 @@ const productData = [
         description: 'Sleek minimalist watch with black leather strap.',
         featured: true,
         inStock: true,
-        rating: 4.8,
-        reviews: 156
+        rating: 0,
+        reviews: 0
     },
     {
         id: 'accessories-003',
@@ -205,9 +275,9 @@ const productData = [
         description: 'Durable canvas messenger bag perfect for daily use.',
         eco: true,
         featured: false,
-        inStock: true,
+        inStock: false,
         rating: 4.5,
-        reviews: 78
+        reviews: 2
     },
     {
         id: 'accessories-004',
@@ -218,23 +288,23 @@ const productData = [
         image: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         description: 'Comfortable knit beanie for casual streetwear looks.',
         featured: false,
-        inStock: true,
-        rating: 4.4,
-        reviews: 167
+        inStock: false,
+        rating: 0,
+        reviews: 0
     },
     {
         id: 'accessories-005',
         name: 'Phone Case - Matte Black',
         category: 'accessories',
-        price: 400,
-        originalPrice: 500,
+        price: 300,
+        originalPrice: 400,
         image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         description: 'Protective phone case with minimalist design.',
         eco: true,
         featured: false,
         inStock: true,
-        rating: 4.3,
-        reviews: 234
+        rating: 0,
+        reviews: 0
     }
 ];
 
@@ -729,7 +799,7 @@ function createProductCard(product) {
         <div class="product-card ${product.featured ? 'featured' : ''} ${!product.inStock ? 'out-of-stock' : ''}" 
              data-category="${product.category}">
             <div class="product-image">
-                <img src="${imgSrc}" alt="${displayName}" loading="lazy" onerror="this.style.opacity=0.6;this.nextElementSibling && (this.nextElementSibling.style.display='block')">
+                <img src="${imgSrc}" alt="${displayName}" loading="lazy" onerror="if(!this.__errored){this.__errored=true; if(this.src && this.src.indexOf('cm.png')===-1){this.src='cm.png';} }">
                 ${discount > 0 ? `<div class="product-badge">${discount}% OFF</div>` : ''}
                 ${!product.inStock ? `<div class="product-badge" style="background: var(--accent-danger);">Out of Stock</div>` : ''}
                 ${product.eco ? `<div class="eco-badge"><i class="fas fa-leaf"></i>Eco</div>` : ''}
@@ -844,10 +914,33 @@ function quickView(productId) {
     const modalBody = document.getElementById('modalBody');
     const modal = document.getElementById('productModal');
     
+    // Get all images
+    const images = Array.isArray(product.images) && product.images.length
+        ? product.images
+        : (Array.isArray(product.image) ? product.image : (product.image ? [product.image] : []));
+    
+    // Build carousel HTML for multiple images
+    let imageHTML = '';
+    if (images.length > 1) {
+        const slidesHTML = images.map(src => `<div class="carousel-slide"><img src="${src}" alt="${product.name}" onerror="if(!this.__errored){this.__errored=true; if(this.src && this.src.indexOf('cm.png')===-1){this.src='cm.png';} }"></div>`).join('');
+        const indicatorsHTML = images.map((_, idx) => `<div class="carousel-indicator${idx === 0 ? ' active' : ''}" data-index="${idx}"></div>`).join('');
+        imageHTML = `
+            <div class="product-carousel quick-view-carousel">
+                <button class="carousel-nav left" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-nav right" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-track">${slidesHTML}</div>
+                <div class="carousel-indicators">${indicatorsHTML}</div>
+            </div>
+        `;
+    } else {
+        const imgSrc = images[0] || '';
+        imageHTML = `<img src="${imgSrc}" alt="${product.name}" onerror="if(!this.__errored){this.__errored=true; if(this.src && this.src.indexOf('cm.png')===-1){this.src='cm.png';} }">`;
+    }
+    
     modalBody.innerHTML = `
         <div class="product-quick-view">
             <div class="quick-view-image">
-                <img src="${Array.isArray(product.image) ? (product.image[0]||'') : (product.image || (product.images && product.images[0]) || '')}" alt="${product.name}" onerror="this.style.opacity=0.6">
+                ${imageHTML}
             </div>
             <div class="quick-view-info">
                 <div class="product-category">${getCategoryName(product.category)}</div>
@@ -894,6 +987,11 @@ function quickView(productId) {
     
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
+    
+    // Initialize carousel if multiple images
+    if (images.length > 1) {
+        setTimeout(() => initCarousels(), 0);
+    }
 }
 
 function toggleWishlist(productId) {

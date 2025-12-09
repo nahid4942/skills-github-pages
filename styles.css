@@ -2528,32 +2528,127 @@ select[id^="modal-size-"]:focus {
     box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
 }
 
+/* Quick View Modal Styles */
+.product-quick-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.quick-view-image {
+    width: 100%;
+}
+
+.quick-view-carousel {
+    min-height: 400px;
+    max-height: 500px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-view-carousel .carousel-track {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: transform 300ms ease;
+    will-change: transform;
+}
+
+.quick-view-carousel .carousel-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+    min-width: 100%;
+}
+
+.quick-view-carousel .carousel-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+}
+
+/* Single image in quick-view */
+.quick-view-image > img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 12px;
+}
+
+.quick-view-info {
+    padding: 16px 0;
+}
+
+.quick-view-info h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--black);
+    margin: 16px 0;
+}
+
+.quick-view-info .product-description {
+    color: var(--gray-600);
+    line-height: 1.6;
+    margin: 16px 0;
+}
+
 /* Small devices tweaks */
 @media (max-width: 600px) {
     .carousel-nav { width: 30px; height: 30px; }
     .carousel-indicator { width: 7px; height: 7px; }
+    
+    .product-quick-view {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .quick-view-carousel,
+    .quick-view-carousel .carousel-slide {
+        min-height: 300px;
+        max-height: 350px;
+    }
 }
 
 /* Product card UI refinements to match markup in `script.js` */
 .product-card {
-  border: 1px solid rgba(15,23,42,0.04);
-  background: linear-gradient(180deg, var(--white), #fbfdff);
-  transition: transform 220ms var(--transition-normal), box-shadow 220ms var(--transition-normal);
+  border: 1px solid rgba(0,0,0,0.05);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .product-image {
   position: relative;
   height: var(--product-media-height);
   overflow: hidden;
-  display: block;
-  background: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f7f9fc, #eef2f7);
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* fills the container, crops if necessary */
   object-position: center;
+  background: transparent;
   display: block;
   transition: transform 480ms cubic-bezier(.2,.9,.3,1);
 }
@@ -2573,31 +2668,45 @@ select[id^="modal-size-"]:focus {
 }
 
 .product-info {
-  padding: 16px;
+  padding: 16px 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex: 1 1 auto;
 }
 
-.product-name { margin-bottom: 4px; }
-.product-description { margin-bottom: 8px; }
+.product-name {
+  margin-bottom: 2px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.product-description {
+  margin-bottom: 4px;
+  color: var(--gray-600);
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
 
 .product-footer {
   margin-top: auto; /* anchor footer to bottom */
   gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .add-to-cart-btn {
   background: var(--black);
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   border: 2px solid transparent;
+  width: 52%;
+  justify-content: center;
 }
 
 .add-to-cart-btn:hover {
