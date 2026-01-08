@@ -44,7 +44,7 @@ const productData = [
         id: 'clothing-001',
         name: 'BLKPAPER   ash acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 800,
+        price: 820,
         originalPrice: 1000,
         images: [
             'clothing/h1p1.png',
@@ -61,7 +61,7 @@ const productData = [
         id: 'clothing-002',
         name: 'BLKPAPER   black acid-wash Urban Hoodie',
         category: 'clothing',
-        price: 800,
+        price: 820,
         originalPrice: 1000,
         images: [
             'clothing/h2p1.png',
@@ -78,11 +78,12 @@ const productData = [
         id: 'clothing-003',
         name: 'Street Style acid wash hoodie ',
         category: 'clothing',
-        price: 720,
-        originalPrice: 900,
+        price: 820,
+        originalPrice: 1200,
         images: [
             'clothing/h3p1.png',
-            'clothing/h3p2.png'
+            'clothing/h3p2.png',
+            'clothing/sc.png'
         ],
         description: 'Trendy street style hoodie with durable material and modern fit.',
         featured: true,
